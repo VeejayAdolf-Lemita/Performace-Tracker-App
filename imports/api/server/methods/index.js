@@ -4,3 +4,4 @@ import './Activity';
 import './Rating';
 import './Reviews';
 import './Employee';
+import './Replies';

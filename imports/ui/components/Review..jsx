@@ -3,12 +3,14 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Client from '../../api/classes/client/Client';
 import Reviews from '../../api/classes/client/review/Reviews';
 import Employees from '../../api/classes/client/review/Employees';
+import Replies from '../../api/classes/client/review/Replies';
 
 class Review extends Component {
   constructor(props) {
     super(props);
     this.state = {
       openModal: false,
+      replyModal: false,
       selectedOption: 'Entire Company',
       inputValue: '',
       suggestions: [],
@@ -18,6 +20,7 @@ class Review extends Component {
     Client.setWatcher(this, 'Reviews');
     Reviews.setWatcher(this, 'Reviews');
     Employees.setWatcher(this, 'Reviews');
+    Replies.setWatcher(this, 'Review');
     this.handleReviewFilter = this.handleReviewFilter.bind(this);
     this.handleSubmitFilter = this.handleSubmitFilter.bind(this);
   }
@@ -43,6 +46,16 @@ class Review extends Component {
 
   handleCloseModal = () => {
     this.setState({ openModal: false });
+  };
+
+  handleReplyOpenModal = (reviewId) => () => {
+    console.log(reviewId);
+    Replies.getReplies(reviewId);
+    this.setState({ replyModal: true });
+  };
+
+  handleReplyCloseModal = () => {
+    this.setState({ replyModal: false });
   };
 
   handleAddMemberChange = (event) => {
@@ -134,7 +147,7 @@ class Review extends Component {
 
   render() {
     const { openModal, selectedOption, filterReview } = this.state;
-    console.log(this.props.mostappreciated);
+    console.log(this.props.replies);
     if (Client.user())
       return (
         <div className='ry_main-style1'>
@@ -282,6 +295,63 @@ class Review extends Component {
               </div>
             </div>
           </div>
+          <div
+            className='ry_add-review-popup'
+            style={{ display: this.state.replyModal ? 'flex' : 'none' }}
+          >
+            <div className='ry_popup'>
+              <div className='ry_popup-top'>
+                <div className='ry_popup-header'>Replies</div>
+                <div className='ry_icon-close' onClick={this.handleReplyCloseModal}>
+                  <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647edc411cb7ba0f95e2d148_icon_close.svg' />
+                </div>
+              </div>
+              <div className='w-form'>
+                <form className='form-2'>
+                  <div
+                    className='form-row'
+                    style={{ maxHeight: '200px', padding: '2px 3px', overflow: 'auto' }}
+                  >
+                    {this.props.replies.map((data) => (
+                      <div className='ry_review' key={data._id} style={{ width: '100%' }}>
+                        <div className='ry_reviewleft'>
+                          <div className='ry_person-style2 small'>
+                            <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f97a36fb101cd48d44_person_04.png' />
+                          </div>
+                          <div className='ry_person-style2 small'>
+                            <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f93d501d2c45239be8_person_05.png' />
+                          </div>
+                        </div>
+
+                        <div className='ry_reviewright'>
+                          <div className='ry_reviewrighttop'>
+                            <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
+                              {`${data.replyFrom} to ${data.replyTo}`}
+                            </p>
+                            <p className='ry_p-style2'>{data.createdAt}</p>
+                          </div>
+                          <p className='ry_p-style1'>
+                            <strong>@{data.replyTo}</strong>
+
+                            {` ${data.message}`}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='form-row'>
+                    <label className='ry_field-label-style1'>Reply</label>
+                    <div className='form-control'>
+                      <textarea maxLength={5000} className='ry_text-area-style1 w-input' />
+                    </div>
+                  </div>
+                  <div className='ry_form-btn_containers'>
+                    <div className='ry_btn-style1 w-button'>Submit</div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
           <div className='ry_main-style1_container'>
             <div className='section-style1 mt-0'>
               <div className='ry_dashboard_top mb-10'>
@@ -387,7 +457,11 @@ class Review extends Component {
                               </div>
                               <div>{data.reacts.length}</div>
                             </div>
-                            <div className='ry_reviewmicro'>
+                            <div
+                              className='ry_reviewmicro'
+                              onClick={this.handleReplyOpenModal(data._id)}
+                              style={{ cursor: 'pointer' }}
+                            >
                               <div className='ry_reviewmicro_icon'>
                                 <img
                                   src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
@@ -395,7 +469,7 @@ class Review extends Component {
                                   alt=''
                                 />
                               </div>
-                              <div>12</div>
+                              <div>View Replies</div>
                             </div>
                           </div>
                         </div>
@@ -484,6 +558,7 @@ export default withTracker(() => {
   Reviews.initiateWatch('Reviews');
   Client.initiateWatch('Reviews');
   Employees.initiateWatch('Reviews');
+  Replies.initiateWatch('Reviews');
   return {
     isReady: Client.init(),
     Client: Client.user(),
@@ -492,5 +567,6 @@ export default withTracker(() => {
     userReviews: Reviews.UserReviews,
     userRecieve: Reviews.UserRecieve,
     mostappreciated: Reviews.MostAppreciated,
+    replies: Replies.Data,
   };
 })(Review);

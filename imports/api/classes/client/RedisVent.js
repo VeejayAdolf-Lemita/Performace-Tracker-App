@@ -47,6 +47,11 @@ class RedisVent {
     return this;
   }
 
+  get Replies() {
+    this.#pre = 'replies';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key
