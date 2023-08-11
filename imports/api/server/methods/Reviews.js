@@ -76,9 +76,9 @@ if (Meteor.isServer) {
         const id = ReviewCollection.insert(data);
         data._id = id._str;
         console.info(
-          'registry.js call[%s]: %s at %s',
+          'Reviews.js call[%s]: %s at %s',
           AddReview,
-          `New Task Added! ID: ${data._id}`,
+          `New Review Added! ID: ${data._id}`,
           moment(data.timestamp),
         );
         RedisVent.Reviews.triggerInsert('reviews', '123', data);

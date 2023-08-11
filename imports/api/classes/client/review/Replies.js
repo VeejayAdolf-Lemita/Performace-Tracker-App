@@ -1,11 +1,12 @@
 import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
-import { GetReplies } from '../../../common';
+import { GetReplies, AddReply } from '../../../common';
 
 class Replies extends Watcher {
   #replies = null;
   #dbreplies = null;
+  #listen = null;
   constructor(parent) {
     super(parent);
     RedisVent.Replies.prepareCollection('replies');
@@ -18,6 +19,22 @@ class Replies extends Watcher {
 
   get Replies() {
     return this.#replies;
+  }
+
+  addReply(data) {
+    this.Parent.callFunc(AddReply, data).catch((error) => console.log(error));
+  }
+
+  listen() {
+    if (this.listen) {
+      this.#listen = RedisVent.Replies.listen('replies', '123', ({ event, data }) => {
+        console.log(event, data);
+        switch (event) {
+          case 'insert':
+        }
+      });
+    }
+    this.activateWatcher();
   }
 
   getReplies(data) {

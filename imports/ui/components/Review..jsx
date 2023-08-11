@@ -5,6 +5,23 @@ import Reviews from '../../api/classes/client/review/Reviews';
 import Employees from '../../api/classes/client/review/Employees';
 import Replies from '../../api/classes/client/review/Replies';
 
+const today = new Date();
+const monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const formatted_date = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+
 class Review extends Component {
   constructor(props) {
     super(props);
@@ -16,13 +33,14 @@ class Review extends Component {
       suggestions: [],
       message: '',
       filterReview: 'Entire Company',
+      reviewId: '',
+      replyTo: '',
+      replyMessage: '',
     };
     Client.setWatcher(this, 'Reviews');
     Reviews.setWatcher(this, 'Reviews');
     Employees.setWatcher(this, 'Reviews');
     Replies.setWatcher(this, 'Review');
-    this.handleReviewFilter = this.handleReviewFilter.bind(this);
-    this.handleSubmitFilter = this.handleSubmitFilter.bind(this);
   }
 
   componentDidMount() {
@@ -48,14 +66,13 @@ class Review extends Component {
     this.setState({ openModal: false });
   };
 
-  handleReplyOpenModal = (reviewId) => () => {
-    console.log(reviewId);
+  handleReplyOpenModal = (reviewId, replyTo) => () => {
     Replies.getReplies(reviewId);
-    this.setState({ replyModal: true });
+    this.setState({ replyModal: true, reviewId, replyTo, replyMessage: '' });
   };
 
   handleReplyCloseModal = () => {
-    this.setState({ replyModal: false });
+    this.setState({ replyModal: false, replyMessage: '' });
   };
 
   handleAddMemberChange = (event) => {
@@ -90,24 +107,6 @@ class Review extends Component {
 
   handleAddReview = () => {
     const { inputValue, selectedOption } = this.state;
-    const today = new Date();
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const formatted_date = `${
-      monthNames[today.getMonth()]
-    } ${today.getDate()}, ${today.getFullYear()}`;
     const reviewFrom = this.props.Client.profile.username;
     const reviewTo = inputValue;
     const message = this.state.message;
@@ -136,18 +135,49 @@ class Review extends Component {
     });
   };
 
-  handleReviewFilter(event) {
-    this.setState({ filterReview: event.target.value });
-  }
+  handleReplySubmit = () => {
+    const { replyTo, replyMessage, reviewId } = this.state;
 
-  handleSubmitFilter(event) {
+    if (!replyMessage.trim()) {
+      return;
+    }
+
+    const replyFrom = this.props.Client.profile.username;
+    const createdAt = formatted_date;
+    const replyData = {
+      replyFrom,
+      replyTo,
+      message: replyMessage,
+      createdAt,
+      reviewId,
+    };
+    Replies.addReply(replyData);
+    Replies.getReplies(reviewId);
+    this.forceUpdate();
+
+    this.setState({
+      replyMessage: '',
+      reviewId: '',
+      replyTo: '',
+    });
+  };
+
+  handleReplyMessage = (event) => {
+    const replyMessage = event.target.value;
+    this.setState({ replyMessage });
+  };
+
+  handleReviewFilter = (event) => {
+    this.setState({ filterReview: event.target.value });
+  };
+
+  handleSubmitFilter = (event) => {
     event.preventDefault();
     Reviews.getReviews(this.state.filterReview);
-  }
+  };
 
   render() {
-    const { openModal, selectedOption, filterReview } = this.state;
-    console.log(this.props.replies);
+    const { openModal, selectedOption, filterReview, replyModal } = this.state;
     if (Client.user())
       return (
         <div className='ry_main-style1'>
@@ -283,6 +313,7 @@ class Review extends Component {
                         className='ry_text-area-style1 w-input'
                         value={this.state.message}
                         onChange={this.handleMessageChange}
+                        required
                       />
                     </div>
                   </div>
@@ -295,10 +326,7 @@ class Review extends Component {
               </div>
             </div>
           </div>
-          <div
-            className='ry_add-review-popup'
-            style={{ display: this.state.replyModal ? 'flex' : 'none' }}
-          >
+          <div className='ry_add-review-popup' style={{ display: replyModal ? 'flex' : 'none' }}>
             <div className='ry_popup'>
               <div className='ry_popup-top'>
                 <div className='ry_popup-header'>Replies</div>
@@ -340,13 +368,20 @@ class Review extends Component {
                     ))}
                   </div>
                   <div className='form-row'>
-                    <label className='ry_field-label-style1'>Reply</label>
+                    <label className='ry_field-label-style1'>Message:</label>
                     <div className='form-control'>
-                      <textarea maxLength={5000} className='ry_text-area-style1 w-input' />
+                      <textarea
+                        maxLength={5000}
+                        className='ry_text-area-style1 w-input'
+                        onChange={this.handleReplyMessage}
+                      />
                     </div>
                   </div>
+
                   <div className='ry_form-btn_containers'>
-                    <div className='ry_btn-style1 w-button'>Submit</div>
+                    <div className='ry_btn-style1 w-button' onClick={this.handleReplySubmit}>
+                      Submit
+                    </div>
                   </div>
                 </form>
               </div>
@@ -459,7 +494,7 @@ class Review extends Component {
                             </div>
                             <div
                               className='ry_reviewmicro'
-                              onClick={this.handleReplyOpenModal(data._id)}
+                              onClick={this.handleReplyOpenModal(data._id, data.reviewTo)}
                               style={{ cursor: 'pointer' }}
                             >
                               <div className='ry_reviewmicro_icon'>

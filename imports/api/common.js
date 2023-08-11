@@ -12,3 +12,4 @@ export const GetUserReview = 'get.user.review';
 export const GetUserRecieve = 'get.user.recieved';
 export const GetTopMostAppreciated = 'get.most.appreciated';
 export const GetReplies = 'get.replies';
+export const AddReply = 'add.reply';
