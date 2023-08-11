@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import Goalss from '../../api/classes/client/review/Goals';
 
-export default class Goals extends Component {
+class Goals extends Component {
+  constructor(props) {
+    super(props);
+    Goalss.setWatcher(this, 'Goals');
+  }
+
+  componentDidMount() {
+    Goalss.getGoals();
+  }
   render() {
+    console.log(this.props.goals);
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -59,204 +70,41 @@ export default class Goals extends Component {
               </div>
               <div className='ry_bodycontainer'>
                 <div className='ry_bodycontainer_left'>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
+                  {this.props.goals.map((data) => (
+                    <div className='ry_review' key={data._id}>
+                      <div className='ry_reviewleft'>
+                        <div className='ry_goalsstatus' />
+                      </div>
+                      <div className='ry_reviewright flex-horizontal'>
+                        <div className='ry_reviewrighttop flex-vertical'>
+                          <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
+                            {data.name}
+                          </p>
+                          <div className='ry_reviewmicro mt-10'>
+                            <div className='ry_reviewmicro_icon'>
+                              <img
+                                src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
+                                loading='lazy'
+                                alt=''
+                              />
+                            </div>
+                            <div>View Note</div>
                           </div>
-                          <div>12</div>
+                        </div>
+                        <div className='ry_reviewrightbottom flex-vertical'>
+                          <h1 className='ry_h3-display1 text-violet'>{data.percentage}%</h1>
+                          <p className='ry_p-style2'>Ends in {data.daysLeft} days</p>
                         </div>
                       </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
+                      <div className='ry_options'>
+                        <img
+                          src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
+                          loading='lazy'
+                          alt=''
+                        />
                       </div>
                     </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus bg-yellow' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
-                          </div>
-                          <div>12</div>
-                        </div>
-                      </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
-                      </div>
-                    </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus bg-yellow' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
-                          </div>
-                          <div>12</div>
-                        </div>
-                      </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
-                      </div>
-                    </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
-                          </div>
-                          <div>12</div>
-                        </div>
-                      </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
-                      </div>
-                    </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus bg-red' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
-                          </div>
-                          <div>12</div>
-                        </div>
-                      </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
-                      </div>
-                    </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
-                  <div className='ry_review'>
-                    <div className='ry_reviewleft'>
-                      <div className='ry_goalsstatus' />
-                    </div>
-                    <div className='ry_reviewright flex-horizontal'>
-                      <div className='ry_reviewrighttop flex-vertical'>
-                        <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                          Increase the lead conversion rate from 12% to 20%
-                        </p>
-                        <div className='ry_reviewmicro mt-10'>
-                          <div className='ry_reviewmicro_icon'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f3b7ec8d98bb32195c8ea_review_02.svg'
-                              loading='lazy'
-                              alt=''
-                            />
-                          </div>
-                          <div>12</div>
-                        </div>
-                      </div>
-                      <div className='ry_reviewrightbottom flex-vertical'>
-                        <h1 className='ry_h3-display1 text-violet'>84%</h1>
-                        <p className='ry_p-style2'>Ends in 5 days</p>
-                      </div>
-                    </div>
-                    <div className='ry_options'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
                 <div className='ry_bodycontainer_right'>
                   <div className='card_dashboard _w-100'>
@@ -330,3 +178,10 @@ export default class Goals extends Component {
     );
   }
 }
+
+export default withTracker(() => {
+  Goalss.initiateWatch('Goals');
+  return {
+    goals: Goalss.Data,
+  };
+})(Goals);

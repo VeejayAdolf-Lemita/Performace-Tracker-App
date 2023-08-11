@@ -4,7 +4,6 @@ import Barchart from './charts/BarChart';
 import { withTracker } from 'meteor/react-meteor-data';
 import Client from '../../api/classes/client/Client';
 import Productivity from '../../api/classes/client/dashboard/Productivity';
-import Goals from '../../api/classes/client/dashboard/Goals';
 import Activity from '../../api/classes/client/dashboard/Activity';
 import Rating from '../../api/classes/client/dashboard/Rating';
 
@@ -19,22 +18,18 @@ class Home extends Component {
     super(props);
     this.state = {
       productivityState: 'Today',
-      goalState: 'Today',
       ratingState: 'Today',
     };
     Client.setWatcher(this, 'Home');
     Productivity.setWatcher(this, 'Home');
-    Goals.setWatcher(this, 'Home');
     Activity.setWatcher(this, 'Home');
     Rating.setWatcher(this, 'Home');
     this.handleProductivityChange = this.handleProductivityChange.bind(this);
-    this.handleGoalChange = this.handleGoalChange.bind(this);
     this.handleRatingChange = this.handleRatingChange.bind(this);
   }
 
   componentDidMount() {
     Productivity.getProductivity(`${this.state.productivityState}`);
-    Goals.getGoals(`${this.state.goalState}`);
     Rating.getRatings(`${this.state.ratingState}`);
     Activity.getActivity();
   }
@@ -44,10 +39,10 @@ class Home extends Component {
     Productivity.getProductivity(`${this.state.productivityState}`);
   }
 
-  handleGoalChange(event) {
-    this.setState({ goalState: event.target.value });
-    Goals.getGoals(`${this.state.goalState}`);
-  }
+  // handleGoalChange(event) {
+  //   this.setState({ goalState: event.target.value });
+  //   Goals.getGoals(`${this.state.goalState}`);
+  // }
 
   handleRatingChange(event) {
     this.setState({ ratingState: event.target.value });
@@ -231,7 +226,7 @@ class Home extends Component {
                       </div>
                       <div className='ry_cardcontent-style2'>
                         <div className='ry_cardcontent-style2_left'>
-                          {this.props.goals.map((data) => (
+                          {/* {this.props.goals.map((data) => (
                             <div className='ry_productivitylabel_container' key={data._id}>
                               <div className='ry_productivitylabel'>
                                 {data.name === 'Achieved' ? (
@@ -247,10 +242,10 @@ class Home extends Component {
                               </div>
                               <div className='ry_p-style1'>{data.name}</div>
                             </div>
-                          ))}
+                          ))} */}
                         </div>
                         <div className='ry_cardcontent-style2_right'>
-                          <Piechart data={this.props.goals} colors={GCOLORS} />
+                          {/* <Piechart data={this.props.goals} colors={GCOLORS} /> */}
                         </div>
                       </div>
                     </div>
@@ -357,14 +352,12 @@ class Home extends Component {
 export default withTracker(() => {
   Client.initiateWatch('Home');
   Productivity.initiateWatch('Home');
-  Goals.initiateWatch('Home');
   Activity.initiateWatch('Home');
   Rating.initiateWatch('Home');
   return {
     isReady: Client.init(),
     Client: Client.user(),
     productivity: Productivity.Data,
-    goals: Goals.Data,
     activity: Activity.Data,
     rating: Rating.Data,
   };
