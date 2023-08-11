@@ -55,8 +55,8 @@ if (Meteor.isServer) {
             status: {
               $switch: {
                 branches: [
-                  { case: { $gte: ['$percentage', 100] }, then: 'Behind' },
-                  { case: { $gte: ['$percentage', 90] }, then: 'At Risk' },
+                  { case: { $gte: ['$percentage', 80] }, then: 'Behind' },
+                  { case: { $gte: ['$percentage', 100] }, then: 'At Risk' },
                 ],
                 default: 'On Track',
               },

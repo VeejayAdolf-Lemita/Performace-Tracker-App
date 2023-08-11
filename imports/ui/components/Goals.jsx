@@ -73,7 +73,9 @@ class Goals extends Component {
                   {this.props.goals.map((data) => (
                     <div className='ry_review' key={data._id}>
                       <div className='ry_reviewleft'>
-                        <div className='ry_goalsstatus' />
+                        {data.status === 'On Track' && <div className='ry_goalsstatus' />}
+                        {data.status === 'Behind' && <div className='ry_goalsstatus bg-yellow' />}
+                        {data.status === 'At Risk' && <div className='ry_goalsstatus bg-red' />}
                       </div>
                       <div className='ry_reviewright flex-horizontal'>
                         <div className='ry_reviewrighttop flex-vertical'>
