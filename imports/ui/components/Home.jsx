@@ -6,6 +6,7 @@ import Client from '../../api/classes/client/Client';
 import Productivity from '../../api/classes/client/dashboard/Productivity';
 import Activity from '../../api/classes/client/dashboard/Activity';
 import Rating from '../../api/classes/client/dashboard/Rating';
+import Goals from '../../api/classes/client/goals/Goals';
 
 const COLORS = ['#00b8b0', '#ccc', '#f4404e'];
 const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
@@ -22,6 +23,7 @@ class Home extends Component {
     };
     Client.setWatcher(this, 'Home');
     Productivity.setWatcher(this, 'Home');
+    Goals.setWatcher(this, 'Home');
     Activity.setWatcher(this, 'Home');
     Rating.setWatcher(this, 'Home');
     this.handleProductivityChange = this.handleProductivityChange.bind(this);
@@ -32,6 +34,7 @@ class Home extends Component {
     Productivity.getProductivity(`${this.state.productivityState}`);
     Rating.getRatings(`${this.state.ratingState}`);
     Activity.getActivity();
+    Goals.getGoals();
   }
 
   handleProductivityChange(event) {
@@ -50,6 +53,30 @@ class Home extends Component {
   }
 
   render() {
+    const achieved = this.props.goals.filter((goal) => goal.achieved);
+    const inprogress = this.props.goals.filter((goal) => goal.percentage < 60);
+    const deferred = this.props.goals.filter((goal) => goal.percentage >= 80);
+    const totalGoals = this.props.goals.length;
+
+    const achievedPercentage = Math.round((achieved.length / totalGoals) * 100);
+    const inprogressPercentage = Math.round((inprogress.length / totalGoals) * 100);
+    const deferredPercentage = Math.round((deferred.length / totalGoals) * 100);
+
+    const goalsData = [
+      {
+        name: 'Achieved',
+        value: achievedPercentage,
+      },
+      {
+        name: 'Deferred',
+        value: deferredPercentage,
+      },
+      {
+        name: 'In Progress',
+        value: inprogressPercentage,
+      },
+    ];
+
     if (Client.user())
       return (
         <div className='ry_main-style1'>
@@ -212,7 +239,7 @@ class Home extends Component {
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Goals</div>
                         <div>
-                          <select
+                          {/* <select
                             className='ry_selectfieldsmall w-select'
                             value={this.state.goalState}
                             onChange={this.handleGoalChange}
@@ -221,17 +248,17 @@ class Home extends Component {
                             <option value='Weekly'>Weekly</option>
                             <option value='Monthly'>Monthly</option>
                             <option value='Yearly'>Yearly</option>
-                          </select>
+                          </select> */}
                         </div>
                       </div>
                       <div className='ry_cardcontent-style2'>
                         <div className='ry_cardcontent-style2_left'>
-                          {/* {this.props.goals.map((data) => (
+                          {goalsData.map((data) => (
                             <div className='ry_productivitylabel_container' key={data._id}>
                               <div className='ry_productivitylabel'>
                                 {data.name === 'Achieved' ? (
                                   <div className='div-block-391 bg-green' />
-                                ) : data.name === 'Deffered' ? (
+                                ) : data.name === 'Deferred' ? (
                                   <div className='div-block-391 bg-gray' />
                                 ) : data.name === 'In Progress' ? (
                                   <div className='div-block-391 bg-orange' />
@@ -242,10 +269,10 @@ class Home extends Component {
                               </div>
                               <div className='ry_p-style1'>{data.name}</div>
                             </div>
-                          ))} */}
+                          ))}
                         </div>
                         <div className='ry_cardcontent-style2_right'>
-                          {/* <Piechart data={this.props.goals} colors={GCOLORS} /> */}
+                          <Piechart data={goalsData} colors={GCOLORS} />
                         </div>
                       </div>
                     </div>
@@ -352,12 +379,14 @@ class Home extends Component {
 export default withTracker(() => {
   Client.initiateWatch('Home');
   Productivity.initiateWatch('Home');
+  Goals.setWatcher(this, 'Goals');
   Activity.initiateWatch('Home');
   Rating.initiateWatch('Home');
   return {
     isReady: Client.init(),
     Client: Client.user(),
     productivity: Productivity.Data,
+    goals: Goals.Data,
     activity: Activity.Data,
     rating: Rating.Data,
   };

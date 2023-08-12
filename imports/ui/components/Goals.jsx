@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import Goalss from '../../api/classes/client/review/Goals';
-import Notes from '../../api/classes/client/review/Notes';
+import Client from '../../api/classes/client/Client';
+import Goalss from '../../api/classes/client/goals/Goals';
+import Notes from '../../api/classes/client/goals/Notes';
 
 const today = new Date();
 const monthNames = [
@@ -32,7 +33,11 @@ class Goals extends Component {
       createdAt: formatted_date,
       achieved: false,
       goalName: '',
+      noteFrom: `${this.props.Client.profile.username}`,
+      goalId: '',
+      note: '',
     };
+    Client.setWatcher(this, 'Goals');
     Goalss.setWatcher(this, 'Goals');
     Notes.setWatcher(this, 'Goals');
   }
@@ -63,8 +68,8 @@ class Goals extends Component {
   };
 
   handleOpenNoteModal = (goalId) => () => {
+    this.setState({ openNoteModal: true, goalId });
     Notes.getNotes(goalId);
-    this.setState({ openNoteModal: true });
   };
 
   handleCloseModal = () => {
@@ -93,9 +98,28 @@ class Goals extends Component {
     });
   };
 
+  handleNoteMessage = (event) => {
+    this.setState({ note: event.target.value });
+  };
+
+  handleAddNote = () => {
+    const { createdAt, noteFrom, goalId, note } = this.state;
+    const newNote = {
+      goalId,
+      noteFrom,
+      note,
+      createdAt,
+    };
+    Notes.addNote(newNote);
+    this.setState({
+      note: '',
+      openNoteModal: false,
+    });
+  };
+
   render() {
-    console.log(this.props.goals);
     const { openModal, openNoteModal } = this.state;
+
     return (
       <div className='ry_main-style1'>
         <div className='ry_add-review-popup' style={{ display: openModal ? 'flex' : 'none' }}>
@@ -148,30 +172,37 @@ class Goals extends Component {
             </div>
             <div className='w-form'>
               <form className='form-2'>
-                <div className='ry_review'>
-                  <div className='ry_reviewright flex-horizontal'>
-                    {this.props.notes.map((data) => (
-                      <div className='ry_reviewrighttop flex-vertical' key={data._id}>
-                        <div className='ry_reviewright'>
-                          <div className='ry_reviewrighttop'>
-                            <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
-                              {data.noteFrom}
-                            </p>
+                <div style={{ maxHeight: '200px', overflow: 'auto' }}>
+                  {this.props.notes.map((data) => (
+                    <div className='ry_review' key={data._id}>
+                      <div className='ry_reviewright flex-horizontal'>
+                        <div className='ry_reviewrighttop flex-vertical'>
+                          <div className='ry_reviewright'>
+                            <div className='ry_reviewrighttop'>
+                              <p className='ry_p-style1 mb-0 text-darkblue text-semibold'>
+                                {data.noteFrom}
+                              </p>
+                            </div>
+                            <p className='ry_p-style1'>{data.note}</p>
                             <p className='ry_p-style2'>{data.createdAt}</p>
                           </div>
-                          <p className='ry_p-style1'>{data.note}</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
                 <div className='form-row'>
                   <label className='ry_field-label-style1'>Note</label>
                   <div className='form-control'>
-                    <input className='ry_text-field-style1 w-input' required />
+                    <input
+                      className='ry_text-field-style1 w-input'
+                      onChange={this.handleNoteMessage}
+                      value={this.state.note}
+                      required
+                    />
                   </div>
                 </div>
-                <div className='ry_form-btn_containers' onClick={this.handleAddGoal}>
+                <div className='ry_form-btn_containers' onClick={this.handleAddNote}>
                   <div className='ry_btn-style1 w-button'>Submit</div>
                 </div>
               </form>
@@ -226,7 +257,9 @@ class Goals extends Component {
                       <div className='ry_reviewleft'>
                         <div
                           className={
-                            data.percentage >= 80
+                            data.achieved
+                              ? 'ry_goalsstatus bg-green'
+                              : data.percentage >= 80
                               ? 'ry_goalsstatus bg-red'
                               : data.percentage >= 60
                               ? 'ry_goalsstatus bg-yellow'
@@ -323,10 +356,12 @@ class Goals extends Component {
 }
 
 export default withTracker(() => {
+  Client.initiateWatch('Goals');
   Goalss.initiateWatch('Goals');
   Notes.initiateWatch('Goals');
   return {
     goals: Goalss.Data,
     notes: Notes.Data,
+    Client: Client.user(),
   };
 })(Goals);
