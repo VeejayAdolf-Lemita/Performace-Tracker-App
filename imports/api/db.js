@@ -8,3 +8,4 @@ export const RatingCollection = new Mongo.Collection('ratings');
 export const ReviewCollection = new Mongo.Collection('reviews');
 export const EmployeesCollection = new Mongo.Collection('employee');
 export const RepliesCollection = new Mongo.Collection('replies');
+export const NotesCollection = new Mongo.Collection('notes');

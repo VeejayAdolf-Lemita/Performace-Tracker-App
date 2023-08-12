@@ -1,6 +1,5 @@
 //Dashboard
 export const GetProductivity = 'get.productivity';
-export const GetGoals = 'get.goals';
 export const GetActivity = 'get.activity.dashboard';
 export const GetRating = 'get.rating';
 
@@ -13,3 +12,7 @@ export const GetUserRecieve = 'get.user.recieved';
 export const GetTopMostAppreciated = 'get.most.appreciated';
 export const GetReplies = 'get.replies';
 export const AddReply = 'add.reply';
+export const GetGoals = 'get.goals';
+export const AddGoal = 'add.goal';
+export const AddNote = 'add.note';
+export const GetNotes = 'get.note';

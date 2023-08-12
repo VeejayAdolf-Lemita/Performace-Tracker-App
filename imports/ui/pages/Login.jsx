@@ -42,8 +42,6 @@ class Login extends Component {
         <a href='#' className='logo_link-style1 w-inline-block'>
           <img
             src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647ee69070fda82b7c14bbf4_signup_logo.svg'
-            loading='lazy'
-            alt=''
             className='image'
           />
         </a>

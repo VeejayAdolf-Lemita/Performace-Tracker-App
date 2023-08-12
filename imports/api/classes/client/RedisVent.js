@@ -52,6 +52,11 @@ class RedisVent {
     return this;
   }
 
+  get Notes() {
+    this.#pre = 'notes';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

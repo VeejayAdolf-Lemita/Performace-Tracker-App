@@ -1,11 +1,12 @@
 import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
-import { GetGoals } from '../../../common';
+import { GetGoals, AddGoal } from '../../../common';
 
 class Goals extends Watcher {
   #goals = null;
   #dbgoals = null;
+  #listen = null;
   constructor(parent) {
     super(parent);
     RedisVent.Goals.prepareCollection('goals');
@@ -18,6 +19,22 @@ class Goals extends Watcher {
 
   get Goals() {
     return this.#goals;
+  }
+
+  addGoal(data) {
+    this.Parent.callFunc(AddGoal, data).catch((error) => console.log(error));
+  }
+
+  listen() {
+    if (this.listen) {
+      this.#listen = RedisVent.Goals.listen('goals', '123', ({ event, data }) => {
+        console.log(event, data);
+        switch (event) {
+          case 'insert':
+        }
+      });
+    }
+    this.activateWatcher();
   }
 
   getGoals() {
