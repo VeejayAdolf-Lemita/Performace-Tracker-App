@@ -59,7 +59,7 @@ if (Meteor.isServer) {
         },
         // Sort the results by 'percentage' in descending order
         {
-          $sort: { percentage: 1 },
+          $sort: { percentage: -1 },
         },
       ];
 

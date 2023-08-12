@@ -311,7 +311,11 @@ class Goals extends Component {
                             </div>
                             <div className='ry_cardcontent_rowcol _w-10'>
                               <p className='ry_p-style1 mb-0 text-darkblue'>
-                                {this.props.goals.filter((goal) => goal.percentage < 60).length}
+                                {
+                                  this.props.goals.filter(
+                                    (goal) => goal.achieved || goal.percentage < 60,
+                                  ).length
+                                }
                               </p>
                             </div>
                           </div>
@@ -324,7 +328,10 @@ class Goals extends Component {
                               <p className='ry_p-style1 mb-0 text-darkblue'>
                                 {
                                   this.props.goals.filter(
-                                    (goal) => goal.percentage >= 60 && goal.percentage < 80,
+                                    (goal) =>
+                                      !goal.achieved &&
+                                      goal.percentage >= 60 &&
+                                      goal.percentage < 80,
                                   ).length
                                 }
                               </p>
@@ -337,7 +344,11 @@ class Goals extends Component {
                             </div>
                             <div className='ry_cardcontent_rowcol _w-10'>
                               <p className='ry_p-style1 mb-0 text-darkblue'>
-                                {this.props.goals.filter((goal) => goal.percentage >= 80).length}
+                                {
+                                  this.props.goals.filter(
+                                    (goal) => !goal.achieved && goal.percentage >= 80,
+                                  ).length
+                                }
                               </p>
                             </div>
                           </div>
