@@ -19,8 +19,12 @@ const monthNames = [
   'November',
   'December',
 ];
-const formatted_date = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
-
+const formatted_date = `${monthNames[today.getMonth()]} ${addLeadingZero(
+  today.getDate(),
+)}, ${today.getFullYear()}`;
+function addLeadingZero(number) {
+  return number < 10 ? '0' + number : number;
+}
 class Goals extends Component {
   constructor(props) {
     super(props);
@@ -36,6 +40,7 @@ class Goals extends Component {
       noteFrom: `${this.props.Client.profile.username}`,
       goalId: '',
       note: '',
+      goalFilter: '',
     };
     Client.setWatcher(this, 'Goals');
     Goalss.setWatcher(this, 'Goals');
@@ -45,6 +50,14 @@ class Goals extends Component {
   componentDidMount() {
     Goalss.getGoals();
   }
+
+  handleGoalFilter = (event) => {
+    this.setState({ goalFilter: event.target.value });
+  };
+
+  handleSubmitFilter = () => {
+    Goalss.getGoals(this.state.goalFilter);
+  };
 
   handleGoalName = (event) => {
     this.setState({
@@ -118,7 +131,7 @@ class Goals extends Component {
   };
 
   render() {
-    const { openModal, openNoteModal } = this.state;
+    const { openModal, openNoteModal, goalFilter } = this.state;
 
     return (
       <div className='ry_main-style1'>
@@ -224,12 +237,22 @@ class Goals extends Component {
             <div className='ry_body pb-0'>
               <div className='ry_bodytop'>
                 <div className='ry_bodytop_left'>
-                  <h1 className='ry_h2-display1'>All Goals</h1>
-                  <div className='ry_arrowdown'>
-                    <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f22d72fcff739ae70c277_icon_arrow.svg' />
-                  </div>
+                  <select
+                    className='ry_selectfieldsmall w-select'
+                    style={{ width: '250px', height: '30px', fontSize: '1rem' }}
+                    onChange={this.handleGoalFilter}
+                    value={goalFilter}
+                  >
+                    <option value=''>All Goals</option>
+                    <option value='Today'>Today</option>
+                    <option value='Weekly'>Weekly</option>
+                  </select>
                 </div>
-                <div className='ry_bodytop_right'>
+                <div
+                  className='ry_bodytop_right'
+                  style={{ cursor: 'pointer' }}
+                  onClick={this.handleSubmitFilter}
+                >
                   <div className='ry_icon-btn-style1 light mr-10 w-inline-block'>
                     <img
                       src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647eef8aec75fb8b58e0fc0c_icon_filter.svg'

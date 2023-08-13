@@ -253,8 +253,8 @@ class Home extends Component {
                       </div>
                       <div className='ry_cardcontent-style2'>
                         <div className='ry_cardcontent-style2_left'>
-                          {goalsData.map((data) => (
-                            <div className='ry_productivitylabel_container' key={data._id}>
+                          {goalsData.map((data, index) => (
+                            <div className='ry_productivitylabel_container' key={index}>
                               <div className='ry_productivitylabel'>
                                 {data.name === 'Achieved' ? (
                                   <div className='div-block-391 bg-green' />

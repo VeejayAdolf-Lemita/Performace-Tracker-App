@@ -20,7 +20,12 @@ const monthNames = [
   'November',
   'December',
 ];
-const formatted_date = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+const formatted_date = `${monthNames[today.getMonth()]} ${addLeadingZero(
+  today.getDate(),
+)}, ${today.getFullYear()}`;
+function addLeadingZero(number) {
+  return number < 10 ? '0' + number : number;
+}
 
 class Review extends Component {
   constructor(props) {

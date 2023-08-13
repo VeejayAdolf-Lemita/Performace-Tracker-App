@@ -6,67 +6,243 @@ import RedisVent from '../RedisVent';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetGoals]: async function () {
-      const currentDate = new Date(); // Current date
+    [GetGoals]: async function (data) {
+      const today = new Date();
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
 
-      const pipeline = [
-        // Project the required fields
-        {
-          $project: {
-            _id: 1, // Exclude '_id'
-            name: 1,
-            goalStart: 1,
-            goalEnd: 1,
-            achieved: 1,
-            createdAt: 1,
-            daysLeft: {
-              $ceil: {
-                $divide: [
-                  {
-                    $subtract: [{ $toDate: '$goalEnd' }, { $toDate: currentDate }],
-                  },
-                  24 * 60 * 60 * 1000, // Milliseconds in a day
-                ],
-              },
-            },
-            percentage: {
-              $cond: {
-                if: { $eq: ['$achieved', true] },
-                then: 100,
-                else: {
-                  $round: [
+      const monthAgo = new Date(today);
+      monthAgo.setMonth(today.getMonth() - 1);
+
+      const yearAgo = new Date(today);
+      yearAgo.setFullYear(today.getFullYear() - 1);
+
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+
+      const formatted_today = `${monthNames[today.getMonth()]} ${addLeadingZero(
+        today.getDate(),
+      )}, ${today.getFullYear()}`;
+      const formatted_weekAgo = `${monthNames[weekAgo.getMonth()]} ${addLeadingZero(
+        weekAgo.getDate(),
+      )}, ${weekAgo.getFullYear()}`;
+      const formatted_monthAgo = `${monthNames[monthAgo.getMonth()]} ${addLeadingZero(
+        monthAgo.getDate(),
+      )}, ${monthAgo.getFullYear()}`;
+      const formatted_yearAgo = `${monthNames[yearAgo.getMonth()]} ${addLeadingZero(
+        yearAgo.getDate(),
+      )}, ${yearAgo.getFullYear()}`;
+
+      function addLeadingZero(number) {
+        return number < 10 ? '0' + number : number;
+      }
+
+      if (data === 'Today') {
+        const currentDate = new Date(); // Current date
+
+        const pipeline = [
+          // Project the required fields
+          {
+            $project: {
+              _id: 1, // Exclude '_id'
+              name: 1,
+              goalStart: 1,
+              goalEnd: 1,
+              achieved: 1,
+              createdAt: 1,
+              daysLeft: {
+                $ceil: {
+                  $divide: [
                     {
-                      $multiply: [
-                        {
-                          $divide: [
-                            {
-                              $subtract: [currentDate, { $toDate: '$goalStart' }],
-                            },
-                            {
-                              $subtract: [{ $toDate: '$goalEnd' }, { $toDate: '$goalStart' }],
-                            },
-                          ],
-                        },
-                        100,
-                      ],
+                      $subtract: [{ $toDate: '$goalEnd' }, { $toDate: currentDate }],
                     },
-                    0, // Round to 0 decimal places
+                    24 * 60 * 60 * 1000, // Milliseconds in a day
                   ],
+                },
+              },
+              percentage: {
+                $cond: {
+                  if: { $eq: ['$achieved', true] },
+                  then: 100,
+                  else: {
+                    $round: [
+                      {
+                        $multiply: [
+                          {
+                            $divide: [
+                              {
+                                $subtract: [currentDate, { $toDate: '$goalStart' }],
+                              },
+                              {
+                                $subtract: [{ $toDate: '$goalEnd' }, { $toDate: '$goalStart' }],
+                              },
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                      0, // Round to 0 decimal places
+                    ],
+                  },
                 },
               },
             },
           },
-        },
-        // Sort the results by 'percentage' in descending order
-        {
-          $sort: { percentage: -1 },
-        },
-      ];
+          // Sort the results by 'percentage' in descending order
+          {
+            $sort: { percentage: -1 },
+          },
+          {
+            $match: {
+              createdAt: formatted_today,
+            },
+          },
+        ];
+        console.log(data);
+        // Perform the aggregation pipeline and convert the result to an array
+        const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
+        return topGoalsCursor;
+      }
+      if (data === 'Weekly') {
+        const currentDate = new Date(); // Current date
 
-      // Perform the aggregation pipeline and convert the result to an array
-      const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
+        const pipeline = [
+          // Project the required fields
+          {
+            $project: {
+              _id: 1, // Exclude '_id'
+              name: 1,
+              goalStart: 1,
+              goalEnd: 1,
+              achieved: 1,
+              createdAt: 1,
+              daysLeft: {
+                $ceil: {
+                  $divide: [
+                    {
+                      $subtract: [{ $toDate: '$goalEnd' }, { $toDate: currentDate }],
+                    },
+                    24 * 60 * 60 * 1000, // Milliseconds in a day
+                  ],
+                },
+              },
+              percentage: {
+                $cond: {
+                  if: { $eq: ['$achieved', true] },
+                  then: 100,
+                  else: {
+                    $round: [
+                      {
+                        $multiply: [
+                          {
+                            $divide: [
+                              {
+                                $subtract: [currentDate, { $toDate: '$goalStart' }],
+                              },
+                              {
+                                $subtract: [{ $toDate: '$goalEnd' }, { $toDate: '$goalStart' }],
+                              },
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                      0, // Round to 0 decimal places
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          // Sort the results by 'percentage' in descending order
+          {
+            $sort: { percentage: -1 },
+          },
+          {
+            $match: {
+              createdAt: {
+                $gte: formatted_weekAgo,
+              },
+            },
+          },
+        ];
+        console.log(data);
+        // Perform the aggregation pipeline and convert the result to an array
+        const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
+        return topGoalsCursor;
+      } else {
+        const currentDate = new Date(); // Current date
 
-      return topGoalsCursor;
+        const pipeline = [
+          // Project the required fields
+          {
+            $project: {
+              _id: 1, // Exclude '_id'
+              name: 1,
+              goalStart: 1,
+              goalEnd: 1,
+              achieved: 1,
+              createdAt: 1,
+              daysLeft: {
+                $ceil: {
+                  $divide: [
+                    {
+                      $subtract: [{ $toDate: '$goalEnd' }, { $toDate: currentDate }],
+                    },
+                    24 * 60 * 60 * 1000, // Milliseconds in a day
+                  ],
+                },
+              },
+              percentage: {
+                $cond: {
+                  if: { $eq: ['$achieved', true] },
+                  then: 100,
+                  else: {
+                    $round: [
+                      {
+                        $multiply: [
+                          {
+                            $divide: [
+                              {
+                                $subtract: [currentDate, { $toDate: '$goalStart' }],
+                              },
+                              {
+                                $subtract: [{ $toDate: '$goalEnd' }, { $toDate: '$goalStart' }],
+                              },
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                      0, // Round to 0 decimal places
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          // Sort the results by 'percentage' in descending order
+          {
+            $sort: { percentage: -1 },
+          },
+        ];
+
+        // Perform the aggregation pipeline and convert the result to an array
+        const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
+        return topGoalsCursor;
+      }
     },
     [AddGoal]: function (data) {
       try {

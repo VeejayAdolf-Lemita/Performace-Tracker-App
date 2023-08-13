@@ -37,8 +37,8 @@ class Goals extends Watcher {
     this.activateWatcher();
   }
 
-  getGoals() {
-    this.Parent.callFunc(GetGoals).then((data) => {
+  getGoals(datas) {
+    this.Parent.callFunc(GetGoals, datas).then((data) => {
       this.#dbgoals.remove({});
       data.forEach((item) => {
         this.#dbgoals.insert(item);
