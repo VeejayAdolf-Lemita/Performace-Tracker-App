@@ -6,6 +6,7 @@ export const GetRating = 'get.rating';
 //Review
 export const GetReviews = 'get.reviews';
 export const GetEmployees = 'get.employees.name';
+export const AddMember = 'add.member';
 export const AddReview = 'add.review';
 export const GetUserReview = 'get.user.review';
 export const GetUserRecieve = 'get.user.recieved';
