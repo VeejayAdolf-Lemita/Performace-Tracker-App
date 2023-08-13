@@ -57,6 +57,11 @@ class RedisVent {
     return this;
   }
 
+  get Bonuses() {
+    this.#pre = 'bonuses';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

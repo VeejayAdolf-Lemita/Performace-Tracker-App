@@ -6,3 +6,4 @@ import './Reviews';
 import './Employee';
 import './Replies';
 import './Note';
+import './Bonus';
