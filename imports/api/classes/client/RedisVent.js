@@ -62,6 +62,11 @@ class RedisVent {
     return this;
   }
 
+  get Teams() {
+    this.#pre = 'teams';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

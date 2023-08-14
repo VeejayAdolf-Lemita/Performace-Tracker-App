@@ -11,3 +11,5 @@ export const RepliesCollection = new Mongo.Collection('replies');
 export const NotesCollection = new Mongo.Collection('notes');
 
 export const BonusesCollection = new Mongo.Collection('bonuses');
+
+export const TeamsCollection = new Mongo.Collection('departments');

@@ -66,6 +66,11 @@ class RedisVent {
     return this;
   }
 
+  get Teams() {
+    this.#pre = 'teams';
+    return this;
+  }
+
   publish() {
     const pub = function (namespace, key, id) {
       if (typeof this.userId != 'string') return this.ready();

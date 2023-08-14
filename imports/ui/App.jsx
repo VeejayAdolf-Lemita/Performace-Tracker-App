@@ -12,7 +12,6 @@ import Goals from './components/Goals';
 import Bonuses from './components/Bonuses';
 import Members from './components/Members';
 import Teams from './components/Teams';
-import Reports from './components/Reports';
 import Timesheet from './components/Timesheet';
 import Timeline from './components/Timeline';
 import Attendance from './components/Attendance';
@@ -40,7 +39,6 @@ class App extends Component {
             <Route path='bonuses' element={<Bonuses />} />
             <Route path='members' element={<Members />} />
             <Route path='teams' element={<Teams />} />
-            <Route path='reports' element={<Reports />} />
             <Route path='timesheets' element={<Timesheet />} />
             <Route path='timeline' element={<Timeline />} />
             <Route path='attendance' element={<Attendance />} />

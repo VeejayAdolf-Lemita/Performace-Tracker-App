@@ -23,3 +23,7 @@ export const GetNotes = 'get.note';
 //Bonuses
 export const AddBonus = 'add.bonus';
 export const GetBonuses = 'get.bonuses';
+
+//Teams
+export const AddTeam = 'add.team';
+export const GetTeams = 'get.team';

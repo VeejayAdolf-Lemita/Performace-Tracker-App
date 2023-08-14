@@ -201,11 +201,7 @@ export default class SideNav extends Component {
                 <div>Teams</div>
               </div>
             </Link>
-            <Link
-              to='reports'
-              className='ry_sidemenu-link-style1 w-inline-block'
-              onClick={this.handleLinkClick}
-            >
+            <div className='ry_sidemenu-link-style1 w-inline-block' onClick={this.handleLinkClick}>
               <div className='sidemenu-link-style1_left'>
                 <div className='ry_icon-side-embed w-embed'>
                   <svg
@@ -247,7 +243,7 @@ export default class SideNav extends Component {
                   </svg>
                 </div>
               </div>
-            </Link>
+            </div>
             <Link
               to='timesheets'
               className='ry_sidemenu-sublink-style1 w-inline-block'

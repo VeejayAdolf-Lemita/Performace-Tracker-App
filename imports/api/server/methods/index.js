@@ -7,3 +7,4 @@ import './Employee';
 import './Replies';
 import './Note';
 import './Bonus';
+import './Teams';
