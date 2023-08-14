@@ -30,3 +30,6 @@ export const GetTeams = 'get.team';
 
 //Timesheet
 export const GetTimesheet = 'get.timesheet';
+
+//Timeline
+export const GetTimeline = 'get.timeline';

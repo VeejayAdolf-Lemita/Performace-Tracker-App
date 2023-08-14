@@ -72,6 +72,11 @@ class RedisVent {
     return this;
   }
 
+  get Timeline() {
+    this.#pre = 'timeline';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

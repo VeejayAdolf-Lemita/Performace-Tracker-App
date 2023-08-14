@@ -191,6 +191,7 @@ class Timesheet extends Component {
                         required
                         value={rawDateFilter}
                         onChange={this.handleDateChange}
+                        style={{ background: '#fff' }}
                       />
                     </div>
                   </div>
