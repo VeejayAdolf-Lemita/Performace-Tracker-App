@@ -176,7 +176,7 @@ class Teams extends Component {
                     onChange={this.handleTeamFilter}
                     value={teamsFilter}
                   >
-                    <option value=''>All Members</option>
+                    <option value=''>All Teams</option>
                     <option value='Graphic Designer'>Graphic Design</option>
                     <option value='Web Development'>Web Development</option>
                     <option value='Human Resources'>Human Resources</option>
