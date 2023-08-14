@@ -67,6 +67,11 @@ class RedisVent {
     return this;
   }
 
+  get Timesheet() {
+    this.#pre = 'timesheet';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

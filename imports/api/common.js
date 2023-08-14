@@ -27,3 +27,6 @@ export const GetBonuses = 'get.bonuses';
 //Teams
 export const AddTeam = 'add.team';
 export const GetTeams = 'get.team';
+
+//Timesheet
+export const GetTimesheet = 'get.timesheet';
