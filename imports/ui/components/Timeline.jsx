@@ -7,7 +7,7 @@ class Timeline extends Component {
     super(props);
     this.state = {
       rawDateFilter: '',
-      rawDateFilter: '',
+      rawDateFilter2: '',
     };
     Timelines.setWatcher(this, 'Timeline');
   }

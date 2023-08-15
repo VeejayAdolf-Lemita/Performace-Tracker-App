@@ -33,3 +33,6 @@ export const GetTimesheet = 'get.timesheet';
 
 //Timeline
 export const GetTimeline = 'get.timeline';
+
+//Attendance
+export const GetAttendance = 'get.attendance';
