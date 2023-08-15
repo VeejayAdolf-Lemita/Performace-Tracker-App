@@ -36,3 +36,6 @@ export const GetTimeline = 'get.timeline';
 
 //Attendance
 export const GetAttendance = 'get.attendance';
+
+//Activity Level
+export const GetActivityLevel = 'get.activity.level';

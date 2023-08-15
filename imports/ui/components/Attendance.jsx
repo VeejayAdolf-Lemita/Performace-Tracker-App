@@ -90,8 +90,6 @@ class Attendance extends Component {
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
-    console.log(this.state.dateFilter, this.state.dateFilter2);
-    console.log(this.props.attendance);
 
     let totalOfficeTime = 0;
     let totalActiveTime = 0;

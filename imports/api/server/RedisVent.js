@@ -86,6 +86,11 @@ class RedisVent {
     return this;
   }
 
+  get ActivityLvl() {
+    this.#pre = 'activityLvl';
+    return this;
+  }
+
   publish() {
     const pub = function (namespace, key, id) {
       if (typeof this.userId != 'string') return this.ready();

@@ -11,3 +11,4 @@ import './Teams';
 import './Timesheet';
 import './Timeline';
 import './Attendance';
+import './ActivityLvl';

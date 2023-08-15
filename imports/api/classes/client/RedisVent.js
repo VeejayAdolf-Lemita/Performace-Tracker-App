@@ -82,6 +82,11 @@ class RedisVent {
     return this;
   }
 
+  get ActivityLvl() {
+    this.#pre = 'activityLvl';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key
