@@ -3,19 +3,27 @@ import { GetActivityLevel } from '../../common';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetActivityLevel]: function () {
+    [GetActivityLevel]: async function (startDate, endDate) {
+      const matchStage = {
+        date: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      };
+
       const pipeline = [
+        {
+          $match: matchStage,
+        },
         {
           $group: {
             _id: {
               employeeName: '$employeeName',
               department: '$department',
             },
-            data: {
+            activities: {
               $push: {
-                day: {
-                  $dayOfWeek: { $dateFromString: { dateString: '$date', format: '%m/%d/%Y' } },
-                },
+                date: '$date',
                 activity: '$activity',
               },
             },
@@ -23,61 +31,59 @@ if (Meteor.isServer) {
         },
         {
           $project: {
-            _id: 1,
-            data: 1,
-            average: {
-              $avg: '$data.activity',
-            },
-          },
-        },
-        {
-          $group: {
-            _id: '$_id.department',
-            employees: {
-              $push: {
-                name: '$_id.employeeName',
-                average: '$average',
-                data: '$data',
-              },
-            },
-          },
-        },
-        {
-          $project: {
             _id: 0,
-            department: '$_id',
-            employees: 1,
+            Name: '$_id.employeeName',
+            Department: '$_id.department',
+            activities: 1,
           },
         },
       ];
 
-      const collection = AttendanceCollection.rawCollection();
-      const cursor = collection.aggregate(pipeline, { allowDiskUse: true });
-      const resultArray = cursor.toArray();
+      try {
+        const activityData = await AttendanceCollection.rawCollection()
+          .aggregate(pipeline)
+          .toArray();
 
-      const formattedResult = [];
+        const formattedData = activityData.map((data) => {
+          const activityByDay = {
+            Sun: '-',
+            Mon: '-',
+            Tue: '-',
+            Wed: '-',
+            Thu: '-',
+            Fri: '-',
+            Sat: '-',
+          };
 
-      for (const deptData of resultArray) {
-        const formattedRow = [deptData.department];
-        const avgRow = ['Average'];
+          data.activities.forEach((activity) => {
+            const dayOfWeek = new Date(activity.date).toLocaleDateString('en-US', {
+              weekday: 'short',
+            });
+            activityByDay[dayOfWeek] = `${activity.activity}%`;
+          });
 
-        for (let i = 1; i <= 5; i++) {
-          const dayData = deptData.employees[0].data.find((day) => day.day === i);
-          const activity = dayData ? `${Math.round(dayData.activity)}%` : '-';
-          formattedRow.push(activity);
+          const averageActivity = calculateAverageActivity(data.activities);
 
-          const avgActivity =
-            deptData.employees.reduce((total, emp) => {
-              const empDayData = emp.data.find((day) => day.day === i);
-              return total + (empDayData ? empDayData.activity : 0);
-            }, 0) / deptData.employees.length;
-          avgRow.push(`${Math.round(avgActivity)}%`);
-        }
+          return {
+            Name: data.Name,
+            Department: data.Department,
+            ...activityByDay,
+            Average: `${averageActivity}%`,
+          };
+        });
 
-        formattedResult.push(formattedRow, avgRow);
+        return formattedData;
+      } catch (error) {
+        // Handle error
+        console.error('Error fetching activity data:', error);
+        throw new Meteor.Error('activity-data-fetch-error', 'Error fetching activity data');
       }
-
-      return formattedResult;
     },
   });
+}
+
+function calculateAverageActivity(activities) {
+  const totalActivity = activities.reduce((total, activity) => total + activity.activity, 0);
+  const averageActivity = totalActivity / activities.length;
+  return averageActivity.toFixed(0); // Rounding to whole number
 }

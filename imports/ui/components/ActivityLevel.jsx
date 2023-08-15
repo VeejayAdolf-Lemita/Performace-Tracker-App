@@ -13,7 +13,7 @@ class ActivityLevel extends Component {
   }
 
   componentDidMount() {
-    // ActivityLevels.getActivityLvl();
+    ActivityLevels.getActivityLvl();
   }
 
   handleDateChange = (event) => {
@@ -25,8 +25,6 @@ class ActivityLevel extends Component {
       this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
       console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter);
   };
 
   handleDateChange2 = (event) => {
@@ -38,11 +36,11 @@ class ActivityLevel extends Component {
       this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
       console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter2);
   };
 
-  handleActivityLevelFilter = () => {};
+  handleActivityLevelFilter = () => {
+    ActivityLevels.getActivityLvl(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
+  };
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
@@ -195,73 +193,75 @@ class ActivityLevel extends Component {
                           </div>
                         </div>
                         <div className='rb-table-content'>
-                          <div className='rb-table-row'>
-                            <div className='rb-table-col stretch'>
-                              <div className='rb-table-cell'>
-                                <div className='div-block-398'>
-                                  <div className='ry_person-style2'>
-                                    <img
-                                      src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f97a36fb101cd48d44_person_04.png'
-                                      loading='lazy'
-                                      alt=''
-                                    />
+                          {this.props.activityLvl.map((data) => (
+                            <div className='rb-table-row' key={data._id}>
+                              <div className='rb-table-col stretch'>
+                                <div className='rb-table-cell'>
+                                  <div className='div-block-398'>
+                                    <div className='ry_person-style2'>
+                                      <img
+                                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f97a36fb101cd48d44_person_04.png'
+                                        loading='lazy'
+                                        alt=''
+                                      />
+                                    </div>
+                                    <div className='table-text'>
+                                      <div>{data.Name}</div>
+                                    </div>
                                   </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _15'>
+                                <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>John Smith</div>
+                                    <div>{data.Department}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-green'>
+                                    <div>{data.Mon}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-green'>
+                                    <div>{data.Tue}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-green'>
+                                    <div>{data.Wed}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-yellow'>
+                                    <div>{data.Thu}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-yellow'>
+                                    <div>{data.Fri}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _10'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-green'>
+                                    <div>{data.Average}</div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            <div className='rb-table-col _15'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text'>
-                                  <div>Graphic Design</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-green'>
-                                  <div>77%</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-green'>
-                                  <div>84%</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-green'>
-                                  <div>65%</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-yellow'>
-                                  <div>59%</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-yellow'>
-                                  <div>53%</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className='rb-table-col _10'>
-                              <div className='rb-table-cell'>
-                                <div className='table-text text-green'>
-                                  <div>72%</div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </div>
