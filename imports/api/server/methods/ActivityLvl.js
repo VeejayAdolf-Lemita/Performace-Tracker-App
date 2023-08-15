@@ -25,6 +25,8 @@ if (Meteor.isServer) {
               $push: {
                 date: '$date',
                 activity: '$activity',
+                productivity: '$productivity',
+                activeTime: { $toDouble: { $substr: ['$activeTime', 0, 2] } },
               },
             },
           },
@@ -35,6 +37,8 @@ if (Meteor.isServer) {
             Name: '$_id.employeeName',
             Department: '$_id.department',
             activities: 1,
+            averageActivity: { $avg: '$activities.activity' },
+            averageActiveTime: { $avg: '$activities.activeTime' },
           },
         },
       ];
@@ -46,31 +50,60 @@ if (Meteor.isServer) {
 
         const formattedData = activityData.map((data) => {
           const activityByDay = {
-            Sun: '-',
             Mon: '-',
             Tue: '-',
             Wed: '-',
             Thu: '-',
             Fri: '-',
-            Sat: '-',
           };
+          let totalActiveTime = 0; // Initialize the total active time
 
           data.activities.forEach((activity) => {
             const dayOfWeek = new Date(activity.date).toLocaleDateString('en-US', {
               weekday: 'short',
             });
             activityByDay[dayOfWeek] = `${activity.activity}%`;
+            totalActiveTime += activity.activeTime; // Accumulate active time
           });
+          console.log(data.activities);
+          const averageActiveTime = totalActiveTime / data.activities.length; // Calculate average active time
 
-          const averageActivity = calculateAverageActivity(data.activities);
+          const officeTimeAverage = calculateOfficeTimeAverage(data.activities, averageActiveTime);
+
+          const totalProductivity = data.activities.reduce((total, activity) => {
+            if (typeof activity.productivity === 'number' && !isNaN(activity.productivity)) {
+              return total + activity.productivity;
+            }
+            return total;
+          }, 0);
+
+          const averageProductivity =
+            data.activities.length > 0 ? totalProductivity / data.activities.length : 0;
+
+          const roundedAverageProductivity = Math.round(averageProductivity); // Round to the nearest integer
+
+          const formattedAverageProductivity = roundedAverageProductivity.toString();
 
           return {
             Name: data.Name,
             Department: data.Department,
             ...activityByDay,
-            Average: `${averageActivity}%`,
+            AverageActivity: `${data.averageActivity.toFixed(0)}%`,
+            AverageActiveTime: `${averageActiveTime.toFixed(2)}h`,
+            OfficeTimeAverage: `${officeTimeAverage.toFixed(2)}h`,
+            AverageProductivity: `${formattedAverageProductivity}%`,
           };
         });
+
+        // Function to calculate office time average
+        function calculateOfficeTimeAverage(activities, averageActiveTime) {
+          const totalOfficeTime = activities.reduce((total, activity) => {
+            const officeTime = 24 - averageActiveTime - activity.activeTime; // Calculate office time per activity
+            return total + officeTime;
+          }, 0);
+
+          return totalOfficeTime / activities.length;
+        }
 
         return formattedData;
       } catch (error) {
@@ -80,10 +113,4 @@ if (Meteor.isServer) {
       }
     },
   });
-}
-
-function calculateAverageActivity(activities) {
-  const totalActivity = activities.reduce((total, activity) => total + activity.activity, 0);
-  const averageActivity = totalActivity / activities.length;
-  return averageActivity.toFixed(0); // Rounding to whole number
 }

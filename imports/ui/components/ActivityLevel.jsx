@@ -60,34 +60,36 @@ class ActivityLevel extends Component {
               </div>
             </div>
             <div className='ry_body pb-0'>
-              <div className='reports_top-card_container'>
-                <div className='card_dashboard_top _w-33 padding-20'>
-                  <div className='card_dashboard_top-left justify-spacebetween'>
-                    <div className='div-block-382'>
-                      <div className='card_dashboard-label'>Office Time</div>
-                      <div className='ry_p-style1'>Average per Shift</div>
+              {this.props.activityLvl.map((data) => (
+                <div className='reports_top-card_container' key={data._id}>
+                  <div className='card_dashboard_top _w-33 padding-20'>
+                    <div className='card_dashboard_top-left justify-spacebetween'>
+                      <div className='div-block-382'>
+                        <div className='card_dashboard-label'>Office Time</div>
+                        <div className='ry_p-style1'>{data.OfficeTimeAverage}</div>
+                      </div>
+                      <h1 className='ry_h3-display1 weight-semibold'>08:32h</h1>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>08:32h</h1>
+                  </div>
+                  <div className='card_dashboard_top _w-33 padding-20'>
+                    <div className='card_dashboard_top-left justify-spacebetween'>
+                      <div className='div-block-382'>
+                        <div className='card_dashboard-label'>Active Time</div>
+                        <div className='ry_p-style1'>Average per Shift</div>
+                      </div>
+                      <h1 className='ry_h3-display1 weight-semibold'>{data.AverageActiveTime}</h1>
+                    </div>
+                  </div>
+                  <div className='card_dashboard_top _w-33 padding-20'>
+                    <div className='card_dashboard_top-left justify-spacebetween'>
+                      <div className='div-block-382'>
+                        <div className='card_dashboard-label'>Productivity</div>
+                      </div>
+                      <h1 className='ry_h3-display1 weight-semibold'>{data.AverageProductivity}</h1>
+                    </div>
                   </div>
                 </div>
-                <div className='card_dashboard_top _w-33 padding-20'>
-                  <div className='card_dashboard_top-left justify-spacebetween'>
-                    <div className='div-block-382'>
-                      <div className='card_dashboard-label'>Active Time</div>
-                      <div className='ry_p-style1'>Average per Shift</div>
-                    </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>07:14h</h1>
-                  </div>
-                </div>
-                <div className='card_dashboard_top _w-33 padding-20'>
-                  <div className='card_dashboard_top-left justify-spacebetween'>
-                    <div className='div-block-382'>
-                      <div className='card_dashboard-label'>Productivity</div>
-                    </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>82%</h1>
-                  </div>
-                </div>
-              </div>
+              ))}
               <div className='ry_bodycontainer flex-vertical'>
                 <div className='ry_bodytop'>
                   <div className='ry_bodytop_left' style={{ gap: '10px' }}>
@@ -256,7 +258,7 @@ class ActivityLevel extends Component {
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text text-green'>
-                                    <div>{data.Average}</div>
+                                    <div>{data.AverageActivity}</div>
                                   </div>
                                 </div>
                               </div>
