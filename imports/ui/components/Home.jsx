@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Piechart from './charts/PieChart';
+import GoalPieChart from './charts/GoalPieChart';
 import Barchart from './charts/BarChart';
 import { withTracker } from 'meteor/react-meteor-data';
 import Client from '../../api/classes/client/Client';
@@ -308,7 +309,11 @@ class Home extends Component {
                           ))}
                         </div>
                         <div className='ry_cardcontent-style2_right'>
-                          <Piechart data={goalsData} colors={GCOLORS} />
+                          <GoalPieChart
+                            data={goalsData}
+                            dataLength={this.props.goals}
+                            colors={GCOLORS}
+                          />
                         </div>
                       </div>
                     </div>
