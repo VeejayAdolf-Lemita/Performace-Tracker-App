@@ -21,13 +21,25 @@ class ActivityLevel extends Watcher {
   }
 
   getActivityLvl(gte, lte) {
+    // Call the GetActivityLevel function on the parent component
     this.Parent.callFunc(GetActivityLevel, gte, lte).then((data) => {
+      // Remove all items from the dbactivitylevel collection
       this.#dbactivitylevel.remove({});
+
+      // Iterate through the data returned by GetActivityLevel
       data.forEach((item) => {
-        // Add a unique _id field to each item before inserting
+        // Add a unique _id field to each item
         item._id = new Meteor.Collection.ObjectID().toHexString();
+
+        // Insert the item into the dbactivitylevel collection
         this.#dbactivitylevel.insert(item);
       });
+
+      // Check if the data length is 0
+      if (data.length === 0) {
+        // Alert the user
+        alert('There is no data in between this date.');
+      }
     });
   }
 }

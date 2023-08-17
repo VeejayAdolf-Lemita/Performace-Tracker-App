@@ -12,10 +12,6 @@ class ActivityLevel extends Component {
     ActivityLevels.setWatcher(this, 'ActivityLevel');
   }
 
-  componentDidMount() {
-    ActivityLevels.getActivityLvl();
-  }
-
   handleDateChange = (event) => {
     const inputValue = event.target.value;
     const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
@@ -44,6 +40,59 @@ class ActivityLevel extends Component {
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
+    const { activityLvl } = this.props;
+    const numObjects = activityLvl.length;
+    let totalActiveTimeInSeconds = 0;
+    let totalProductivity = 0;
+    let totalOfficeTimeInSeconds = 0;
+
+    activityLvl.forEach((item) => {
+      // Extract numerical values for AverageActiveTime, AverageProductivity, and OfficeTimeAverage
+      const activeTime = item.AverageActiveTime; // The format is like "9.71h"
+      const productivity = parseFloat(item.AverageProductivity);
+      const officeTime = item.OfficeTimeAverage; // The format is like "5.285"
+
+      // Convert activeTime to seconds and add to totalActiveTimeInSeconds
+      const activeTimeParts = activeTime.split('.');
+      const hours = parseInt(activeTimeParts[0]);
+      const minutes = Math.round(parseFloat(`0.${activeTimeParts[1]}`) * 60);
+      const totalSeconds = hours * 3600 + minutes * 60;
+      if (!isNaN(totalSeconds)) {
+        totalActiveTimeInSeconds += totalSeconds;
+      }
+
+      if (!isNaN(productivity)) {
+        totalProductivity += productivity;
+      }
+
+      // Convert officeTime to seconds and add to totalOfficeTimeInSeconds
+      const officeTimeParts = officeTime.split('.');
+      const officeHours = parseInt(officeTimeParts[0]);
+      const officeMinutes = Math.round(parseFloat(`0.${officeTimeParts[1]}`) * 60);
+      const totalOfficeSeconds = officeHours * 3600 + officeMinutes * 60;
+      if (!isNaN(totalOfficeSeconds)) {
+        totalOfficeTimeInSeconds += totalOfficeSeconds;
+      }
+    });
+
+    // Calculate averages
+    const averageActiveTimeInSeconds = totalActiveTimeInSeconds / numObjects;
+    const averageProductivity = totalProductivity / numObjects;
+    const averageOfficeTimeInSeconds = totalOfficeTimeInSeconds / numObjects;
+
+    // Convert averageActiveTimeInSeconds back to hh:mm:ss format
+    const averageActiveHours = Math.floor(averageActiveTimeInSeconds / 3600);
+    const averageActiveMinutes = Math.floor((averageActiveTimeInSeconds % 3600) / 60);
+    const averageActiveSeconds = averageActiveTimeInSeconds % 60;
+    const averageActiveTimeFormatted = `${averageActiveHours}:${averageActiveMinutes
+      .toString()
+      .padStart(2, '0')}:${averageActiveSeconds.toString().padStart(2, '0')}`;
+
+    const averageOfficeHours = Math.floor(averageOfficeTimeInSeconds / 3600);
+    const averageOfficeMinutes = Math.floor((averageOfficeTimeInSeconds % 3600) / 60);
+    const averageOfficeTimeFormatted = `${averageOfficeHours
+      .toString()
+      .padStart(2, '0')}:${averageOfficeMinutes.toString().padStart(2, '0')}`;
     console.log(this.props.activityLvl);
     return (
       <div className='ry_main-style1'>
@@ -60,36 +109,45 @@ class ActivityLevel extends Component {
               </div>
             </div>
             <div className='ry_body pb-0'>
-              {this.props.activityLvl.map((data) => (
-                <div className='reports_top-card_container' key={data._id}>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Office Time</div>
-                        <div className='ry_p-style1'>{data.OfficeTimeAverage}</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>08:32h</h1>
+              <div className='reports_top-card_container'>
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Office Time</div>
+                      <div className='ry_p-style1'>OfficeTimeAverage</div>
                     </div>
-                  </div>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Active Time</div>
-                        <div className='ry_p-style1'>Average per Shift</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>{data.AverageActiveTime}</h1>
-                    </div>
-                  </div>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Productivity</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>{data.AverageProductivity}</h1>
-                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageOfficeTimeFormatted === 'NaN:NaN'
+                        ? 'N/A'
+                        : `${averageOfficeTimeFormatted}h`}
+                    </h1>
                   </div>
                 </div>
-              ))}
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Active Time</div>
+                      <div className='ry_p-style1'>Average per Shift</div>
+                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageActiveTimeFormatted === 'NaN:NaN:NaN'
+                        ? 'N/A'
+                        : `${averageActiveTimeFormatted}h`}
+                    </h1>
+                  </div>
+                </div>
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Productivity</div>
+                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageProductivity === 'NaN' ? 'N/A' : `${averageProductivity}%`}
+                    </h1>
+                  </div>
+                </div>
+              </div>
+
               <div className='ry_bodycontainer flex-vertical'>
                 <div className='ry_bodytop'>
                   <div className='ry_bodytop_left' style={{ gap: '10px' }}>
