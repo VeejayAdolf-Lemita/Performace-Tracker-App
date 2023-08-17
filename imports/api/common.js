@@ -39,3 +39,6 @@ export const GetAttendance = 'get.attendance';
 
 //Activity Level
 export const GetActivityLevel = 'get.activity.level';
+
+//360 Feedback
+export const GetFeedback = 'get.feedback';

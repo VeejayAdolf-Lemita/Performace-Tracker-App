@@ -91,6 +91,11 @@ class RedisVent {
     return this;
   }
 
+  get Feedback() {
+    this.#pre = 'feedback';
+    return this;
+  }
+
   publish() {
     const pub = function (namespace, key, id) {
       if (typeof this.userId != 'string') return this.ready();

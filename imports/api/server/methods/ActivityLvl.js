@@ -65,7 +65,7 @@ if (Meteor.isServer) {
             activityByDay[dayOfWeek] = `${activity.activity}%`;
             totalActiveTime += activity.activeTime; // Accumulate active time
           });
-          console.log(data.activities);
+
           const averageActiveTime = totalActiveTime / data.activities.length; // Calculate average active time
 
           const officeTimeAverage = calculateOfficeTimeAverage(data.activities, averageActiveTime);

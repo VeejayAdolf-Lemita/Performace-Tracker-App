@@ -12,3 +12,4 @@ import './Timesheet';
 import './Timeline';
 import './Attendance';
 import './ActivityLvl';
+import './Feedback';
