@@ -53,16 +53,6 @@ class Feedback extends Component {
   };
 
   render() {
-    console.log(this.props.feedback.map((data) => data.data));
-
-    if (!this.props.feedback) {
-      return (
-        <>
-          <h1>No data found</h1>
-          <button onClick={() => window.location.reload()}>Reload</button>
-        </>
-      );
-    }
     return (
       <div className='ry_main-style1'>
         {this.props.feedback.map((data) => (

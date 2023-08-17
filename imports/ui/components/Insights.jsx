@@ -92,12 +92,12 @@ export default class Insights extends Component {
                         aria-label='Email Form 2'
                       >
                         <div className='ry_cardtop'>
-                          <div className='card_dashboard-label'>Top Members</div>
+                          <div className='card_dashboard-label'>Goals</div>
                           <div>
                             <select
-                              id='field-3'
-                              name='field-3'
-                              data-name='Field 3'
+                              id='field-2'
+                              name='field-2'
+                              data-name='Field 2'
                               className='ry_selectfieldsmall w-select'
                             >
                               <option value>Today</option>
@@ -107,34 +107,41 @@ export default class Insights extends Component {
                             </select>
                           </div>
                         </div>
-                        <div className='ry_barchart'>
-                          <img
-                            src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f16df88baf63d40220dfa_chart_01.svg'
-                            loading='lazy'
-                            alt=''
-                            className='image-100'
-                          />
+                        <div className='ry_cardcontent-style2'>
+                          <div className='ry_cardcontent-style2_left'>
+                            <div className='ry_productivitylabel_container'>
+                              <div className='ry_productivitylabel'>
+                                <div className='div-block-391' />
+                                <h1 className='ry_h3-display1 weight-semibold'>42%</h1>
+                              </div>
+                              <div className='ry_p-style1'>Achieved</div>
+                            </div>
+                            <div className='ry_productivitylabel_container'>
+                              <div className='ry_productivitylabel'>
+                                <div className='div-block-391 bg-gray' />
+                                <h1 className='ry_h3-display1 weight-semibold'>14%</h1>
+                              </div>
+                              <div className='ry_p-style1'>Deferred</div>
+                            </div>
+                            <div className='ry_productivitylabel_container'>
+                              <div className='ry_productivitylabel'>
+                                <div className='div-block-391 bg-orange' />
+                                <h1 className='ry_h3-display1 weight-semibold'>5%</h1>
+                              </div>
+                              <div className='ry_p-style1'>In Progress</div>
+                            </div>
+                          </div>
+                          <div className='ry_cardcontent-style2_right'>
+                            <div className='ry_piechart _2'>
+                              <h1 className='ry_h1-display1'>8</h1>
+                              <div className='ry_p-style1'>Goals</div>
+                            </div>
+                          </div>
                         </div>
                       </form>
-                      <div
-                        className='w-form-done'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 success'
-                      >
-                        <div>Thank you! Your submission has been received!</div>
-                      </div>
-                      <div
-                        className='w-form-fail'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 failure'
-                      >
-                        <div>Oops! Something went wrong while submitting the form.</div>
-                      </div>
                     </div>
                   </div>
-                  <div className='card_dashboard'>
+                  <div className='card_dashboard _w-33'>
                     <div className='w-form'>
                       <form
                         id='email-form-2'
@@ -191,27 +198,11 @@ export default class Insights extends Component {
                           </div>
                         </div>
                       </form>
-                      <div
-                        className='w-form-done'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 success'
-                      >
-                        <div>Thank you! Your submission has been received!</div>
-                      </div>
-                      <div
-                        className='w-form-fail'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 failure'
-                      >
-                        <div>Oops! Something went wrong while submitting the form.</div>
-                      </div>
                     </div>
                   </div>
                 </div>
                 <div className='card_row_container'>
-                  <div className='card_dashboard _w-66'>
+                  <div className='card_dashboard _w-100'>
                     <div className='w-form'>
                       <form
                         id='email-form-2'
@@ -245,97 +236,6 @@ export default class Insights extends Component {
                           />
                         </div>
                       </form>
-                      <div
-                        className='w-form-done'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 success'
-                      >
-                        <div>Thank you! Your submission has been received!</div>
-                      </div>
-                      <div
-                        className='w-form-fail'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 failure'
-                      >
-                        <div>Oops! Something went wrong while submitting the form.</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className='card_dashboard'>
-                    <div className='w-form'>
-                      <form
-                        id='email-form-2'
-                        name='email-form-2'
-                        data-name='Email Form 2'
-                        method='get'
-                        aria-label='Email Form 2'
-                      >
-                        <div className='ry_cardtop'>
-                          <div className='card_dashboard-label'>Goals</div>
-                          <div>
-                            <select
-                              id='field-2'
-                              name='field-2'
-                              data-name='Field 2'
-                              className='ry_selectfieldsmall w-select'
-                            >
-                              <option value>Today</option>
-                              <option value='First'>First choice</option>
-                              <option value='Second'>Second choice</option>
-                              <option value='Third'>Third choice</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className='ry_cardcontent-style2'>
-                          <div className='ry_cardcontent-style2_left'>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391' />
-                                <h1 className='ry_h3-display1 weight-semibold'>42%</h1>
-                              </div>
-                              <div className='ry_p-style1'>Achieved</div>
-                            </div>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391 bg-gray' />
-                                <h1 className='ry_h3-display1 weight-semibold'>14%</h1>
-                              </div>
-                              <div className='ry_p-style1'>Deferred</div>
-                            </div>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391 bg-orange' />
-                                <h1 className='ry_h3-display1 weight-semibold'>5%</h1>
-                              </div>
-                              <div className='ry_p-style1'>In Progress</div>
-                            </div>
-                          </div>
-                          <div className='ry_cardcontent-style2_right'>
-                            <div className='ry_piechart _2'>
-                              <h1 className='ry_h1-display1'>8</h1>
-                              <div className='ry_p-style1'>Goals</div>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                      <div
-                        className='w-form-done'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 success'
-                      >
-                        <div>Thank you! Your submission has been received!</div>
-                      </div>
-                      <div
-                        className='w-form-fail'
-                        tabIndex={-1}
-                        role='region'
-                        aria-label='Email Form 2 failure'
-                      >
-                        <div>Oops! Something went wrong while submitting the form.</div>
-                      </div>
                     </div>
                   </div>
                 </div>

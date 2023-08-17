@@ -12,6 +12,10 @@ class Timeline extends Component {
     Timelines.setWatcher(this, 'Timeline');
   }
 
+  componentDidMount() {
+    Timelines.getTimeline();
+  }
+
   handleDateChange = (event) => {
     const inputValue = event.target.value;
     const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
@@ -26,16 +30,16 @@ class Timeline extends Component {
   };
 
   handleDateChange2 = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
+    const inputValue2 = event.target.value;
+    const [year, month, day] = inputValue2.split('-'); // Assuming input value is in YYYY-MM-DD format
 
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
+      this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue2 }); // Update both states
       console.log(formattedDate);
     }
 
-    console.log(this.state.dateFilter);
+    console.log(typeof this.state.dateFilter2);
   };
 
   handleTimelinetFilter = () => {
@@ -68,7 +72,45 @@ class Timeline extends Component {
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
+    console.log(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
     console.log(this.props.timeline);
+    const timelineData = this.props.timeline;
+    let totalOfficeTimeMinutes = 0;
+
+    timelineData.forEach((data) => {
+      const officeTimeParts = data.OfficeTimeAverage.split(':');
+      const officeTimeMinutes = parseInt(officeTimeParts[0]) * 60 + parseInt(officeTimeParts[1]);
+      totalOfficeTimeMinutes += officeTimeMinutes;
+    });
+
+    const averageOfficeTimeMinutes = totalOfficeTimeMinutes / timelineData.length;
+    const averageOfficeTimeHours = Math.floor(averageOfficeTimeMinutes / 60);
+    const averageOfficeTimeMinutesRemainder = averageOfficeTimeMinutes % 60;
+    const averageOfficeTimeString = `${averageOfficeTimeHours}:${averageOfficeTimeMinutesRemainder}`;
+
+    let totalActiveTimeMinutes = 0;
+    let numDataPoints = 0;
+
+    timelineData.forEach((data) => {
+      const activeTimeParts = data.ActiveTimeAverage.split(':');
+      const activeTimeMinutes = parseInt(activeTimeParts[0]) * 60 + parseInt(activeTimeParts[1]);
+      totalActiveTimeMinutes += activeTimeMinutes;
+      numDataPoints++;
+    });
+
+    const averageActiveTimeMinutes = totalActiveTimeMinutes / numDataPoints;
+    const averageActiveTimeHours = Math.floor(averageActiveTimeMinutes / 60);
+    const averageActiveTimeMinutesRemainder = averageActiveTimeMinutes % 60;
+    const averageActiveTimeString = `${averageActiveTimeHours}:${averageActiveTimeMinutesRemainder}`;
+
+    let totalProductivity = 0;
+
+    timelineData.forEach((data) => {
+      totalProductivity += data.Productivity;
+    });
+
+    const averageProductivity = totalProductivity / timelineData.length;
+
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -84,36 +126,35 @@ class Timeline extends Component {
               </div>
             </div>
             <div className='ry_body pb-0'>
-              {this.props.timeline.map((data) => (
-                <div className='reports_top-card_container' key={data._id}>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Office Time</div>
-                        <div className='ry_p-style1'>Average per Shift</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>{data.OfficeTimeAverage}h</h1>
+              <div className='reports_top-card_container'>
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Office Time</div>
+                      <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                  </div>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Active Time</div>
-                        <div className='ry_p-style1'>Average per Shift</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>{data.ActiveTimeAverage}h</h1>
-                    </div>
-                  </div>
-                  <div className='card_dashboard_top _w-33 padding-20'>
-                    <div className='card_dashboard_top-left justify-spacebetween'>
-                      <div className='div-block-382'>
-                        <div className='card_dashboard-label'>Productivity</div>
-                      </div>
-                      <h1 className='ry_h3-display1 weight-semibold'>{`${data.Productivity} %`}</h1>
-                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTimeString} h</h1>
                   </div>
                 </div>
-              ))}
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Active Time</div>
+                      <div className='ry_p-style1'>Average per Shift</div>
+                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTimeString} h</h1>
+                  </div>
+                </div>
+                <div className='card_dashboard_top _w-33 padding-20'>
+                  <div className='card_dashboard_top-left justify-spacebetween'>
+                    <div className='div-block-382'>
+                      <div className='card_dashboard-label'>Productivity</div>
+                    </div>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity} %</h1>
+                  </div>
+                </div>
+              </div>
+
               <div className='ry_bodycontainer flex-vertical'>
                 <div className='ry_bodytop'>
                   <div className='ry_bodytop_left' style={{ gap: '10px' }}>

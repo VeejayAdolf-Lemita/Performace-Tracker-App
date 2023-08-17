@@ -42,10 +42,13 @@ class Home extends Component {
     Productivity.getProductivity(`${this.state.productivityState}`);
   }
 
-  // handleGoalChange(event) {
-  //   this.setState({ goalState: event.target.value });
-  //   Goals.getGoals(`${this.state.goalState}`);
-  // }
+  handleGoalChange = (event) => {
+    this.setState({ goalState: event.target.value });
+  };
+
+  handleGoalFilter = () => {
+    Goals.getGoals(`${this.state.goalState}`);
+  };
 
   handleRatingChange(event) {
     this.setState({ ratingState: event.target.value });
@@ -170,6 +173,22 @@ class Home extends Component {
                             <option value='Yearly'>Yearly</option>
                           </select>
                         </div>
+                        {/* <div>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            stroke-width='2'
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                            class='feather feather-filter'
+                          >
+                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                          </svg>
+                        </div> */}
                       </div>
                       <div className='ry_cardcontent-style1'>
                         {this.props.activity.map((data) => (
@@ -238,17 +257,34 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Goals</div>
-                        <div>
-                          {/* <select
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <select
                             className='ry_selectfieldsmall w-select'
                             value={this.state.goalState}
                             onChange={this.handleGoalChange}
                           >
+                            <option value=''>All Goals</option>
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
-                            <option value='Monthly'>Monthly</option>
-                            <option value='Yearly'>Yearly</option>
-                          </select> */}
+                          </select>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='1'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            className='feather feather-filter'
+                            style={{
+                              cursor: 'pointer',
+                            }}
+                            onClick={this.handleGoalFilter}
+                          >
+                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style2'>
