@@ -14,6 +14,7 @@ if (Meteor.isServer) {
           $group: {
             _id: '$employeeName',
             department: { $first: '$department' },
+            image: { $first: '$image' },
             timeIn: { $push: '$timeIn' },
             timeOut: { $push: '$timeOut' },
             productivity: { $avg: '$productivity' },
@@ -38,6 +39,7 @@ if (Meteor.isServer) {
 
         return {
           Name: data._id,
+          image: data.image,
           Department: data.department,
           Mon: timeInFormatted[0],
           Tue: timeInFormatted[1],

@@ -20,6 +20,7 @@ if (Meteor.isServer) {
             _id: {
               employeeName: '$employeeName',
               department: '$department',
+              image: '$image',
             },
             activities: {
               $push: {
@@ -37,6 +38,7 @@ if (Meteor.isServer) {
             Name: '$_id.employeeName',
             Department: '$_id.department',
             activities: 1,
+            image: '$_id.image',
             averageActivity: { $avg: '$activities.activity' },
             averageActiveTime: { $avg: '$activities.activeTime' },
           },
@@ -86,6 +88,7 @@ if (Meteor.isServer) {
 
           return {
             Name: data.Name,
+            image: data.image,
             Department: data.Department,
             ...activityByDay,
             AverageActivity: `${data.averageActivity.toFixed(0)}%`,

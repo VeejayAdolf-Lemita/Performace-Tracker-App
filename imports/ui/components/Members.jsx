@@ -268,7 +268,7 @@ class Members extends Component {
                               <div className='rb-table-cell'>
                                 <div className='div-block-398'>
                                   <div className='ry_person-style2'>
-                                    <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f97a36fb101cd48d44_person_04.png' />
+                                    <img src={data.image} style={{ borderRadius: '50%' }} />
                                   </div>
                                   <div className='table-text'>
                                     <div>{data.name}</div>

@@ -263,7 +263,7 @@ class Feedback extends Component {
                     <div className='card_dashboard _w-100'>
                       <div className='card_dashboard_top-left'>
                         <div className='ry_person-style1'>
-                          <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f872fa62a3b4c3127d_person_01.png' />
+                          <img src={data.image} style={{ borderRadius: '50%' }} />
                         </div>
                         <div className='div-block-382'>
                           <h1 className='ry_h3-display1'>{data.name}</h1>

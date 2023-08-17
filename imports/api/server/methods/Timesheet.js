@@ -11,6 +11,7 @@ if (Meteor.isServer) {
               Name: '$employeeName',
               Team: '$department',
               Date: '$date',
+              image: '$image',
               OfficeTime: {
                 $concat: ['$timeIn', ' - ', '$timeOut'],
               },

@@ -251,7 +251,7 @@ class Teams extends Component {
                               >
                                 <div className='ry_cardcontent_rowcol'>
                                   <div className='ry_person-style2'>
-                                    <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f04f97a36fb101cd48d44_person_04.png' />
+                                    <img src={member.image} style={{ borderRadius: '50%' }} />
                                   </div>
                                   <p className='ry_p-style1 mb-0'>{member.name}</p>
                                 </div>

@@ -166,14 +166,14 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Todays' Activity</div>
-                        <div>
+                        {/* <div>
                           <select className='ry_selectfieldsmall w-select'>
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
                             <option value='Monthly'>Monthly</option>
                             <option value='Yearly'>Yearly</option>
                           </select>
-                        </div>
+                        </div> */}
                         {/* <div>
                           <svg
                             xmlns='http://www.w3.org/2000/svg'
