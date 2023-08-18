@@ -1,25 +1,29 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import PieChart from './charts/GoalPieChart';
+import PieChart from './charts/PieChart';
 import GoalPieChart from './charts/GoalPieChart';
 import Goals from '../../api/classes/client/goals/Goals';
 import Insight from '../../api/classes/client/insights/Insights';
+import Productivity from '../../api/classes/client/dashboard/Productivity';
 
 class Insights extends Component {
   constructor(props) {
     super(props);
     this.state = {
       goalState: '',
+      productivityState: 'Today',
     };
-    Goals.setWatcher(this, 'Insights');
     Insight.setWatcher(this, 'Insights');
+    Goals.setWatcher(this, 'Insights');
+    Productivity.setWatcher(this, 'Home');
   }
 
   componentDidMount() {
-    Goals.getGoals();
     Insight.getActiveMember();
     Insight.getActiveMemberYesterday();
     Insight.getActiveMemberWeekly();
+    Goals.getGoals();
+    Productivity.getProductivity(`${this.state.productivityState}`);
   }
 
   handleGoalChange = (event) => {
@@ -28,6 +32,14 @@ class Insights extends Component {
 
   handleGoalFilter = () => {
     Goals.getGoals(`${this.state.goalState}`);
+  };
+
+  handleProductivityChange = (event) => {
+    this.setState({ productivityState: event.target.value });
+  };
+
+  handleProductivityFilter = () => {
+    Productivity.getProductivity(`${this.state.productivityState}`);
   };
 
   render() {
@@ -291,18 +303,35 @@ class Insights extends Component {
                       <form>
                         <div className='ry_cardtop'>
                           <div className='card_dashboard-label'>Productivity</div>
-                          <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <select
-                              id='field-2'
-                              name='field-2'
-                              data-name='Field 2'
                               className='ry_selectfieldsmall w-select'
+                              onChange={this.handleProductivityChange}
+                              value={this.state.productivityState}
                             >
-                              <option value>Today</option>
-                              <option value='First'>First choice</option>
-                              <option value='Second'>Second choice</option>
-                              <option value='Third'>Third choice</option>
+                              <option value='Today'>Today</option>
+                              <option value='Weekly'>Weekly</option>
+                              <option value='Monthly'>Monthly</option>
+                              <option value='Yearly'>Yearly</option>
                             </select>
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              width='24'
+                              height='24'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              strokeWidth='1'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              className='feather feather-filter'
+                              style={{
+                                cursor: 'pointer',
+                              }}
+                              onClick={this.handleProductivityFilter}
+                            >
+                              <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                            </svg>
                           </div>
                         </div>
                         <div className='ry_cardcontent-style2'>
@@ -330,10 +359,7 @@ class Insights extends Component {
                             </div>
                           </div>
                           <div className='ry_cardcontent-style2_right'>
-                            <div className='ry_piechart'>
-                              <h1 className='ry_h1-display1'>70%</h1>
-                              <div className='ry_p-style1'>Productive</div>
-                            </div>
+                            <PieChart data={this.props.productivity} colors={COLORS} />
                           </div>
                         </div>
                       </form>
@@ -388,10 +414,13 @@ class Insights extends Component {
 export default withTracker(() => {
   Goals.initiateWatch('Insights');
   Insight.initiateWatch('Insights');
+  Productivity.initiateWatch('Insights');
+
   return {
     goals: Goals.Data,
     insights: Insight.DataToday,
     insightsYesterday: Insight.DataYesterday,
     insightsWeekly: Insight.DataWeekly,
+    productivity: Productivity.Data,
   };
 })(Insights);

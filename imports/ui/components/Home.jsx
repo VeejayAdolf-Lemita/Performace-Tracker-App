@@ -40,8 +40,11 @@ class Home extends Component {
 
   handleProductivityChange(event) {
     this.setState({ productivityState: event.target.value });
-    Productivity.getProductivity(`${this.state.productivityState}`);
   }
+
+  handleProductivityFilter = () => {
+    Productivity.getProductivity(`${this.state.productivityState}`);
+  };
 
   handleGoalChange = (event) => {
     this.setState({ goalState: event.target.value });
@@ -215,7 +218,7 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Productivity</div>
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <select
                             className='ry_selectfieldsmall w-select'
                             onChange={this.handleProductivityChange}
@@ -226,6 +229,24 @@ class Home extends Component {
                             <option value='Monthly'>Monthly</option>
                             <option value='Yearly'>Yearly</option>
                           </select>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='1'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            className='feather feather-filter'
+                            style={{
+                              cursor: 'pointer',
+                            }}
+                            onClick={this.handleProductivityFilter}
+                          >
+                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style2'>

@@ -91,6 +91,7 @@ class Feedback extends Component {
                     />
                     <div
                       className='ry_icon-btn-style1 light mr-10 w-inline-block'
+                      style={{ cursor: 'pointer' }}
                       onClick={this.handleFeedbackFilter}
                     >
                       <img
@@ -101,6 +102,7 @@ class Feedback extends Component {
                     </div>
                     <div
                       className='ry_icon-btn-style1 outline mr-10 w-inline-block'
+                      style={{ cursor: 'pointer' }}
                       onClick={this.handleExport}
                     >
                       <img
