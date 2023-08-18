@@ -96,6 +96,21 @@ class RedisVent {
     return this;
   }
 
+  get ActiveMember() {
+    this.#pre = 'activemember';
+    return this;
+  }
+
+  get ActiveMemberYesterday() {
+    this.#pre = 'activememberyesterday';
+    return this;
+  }
+
+  get ActiveMemberWeekly() {
+    this.#pre = 'activememberweekly';
+    return this;
+  }
+
   publish() {
     const pub = function (namespace, key, id) {
       if (typeof this.userId != 'string') return this.ready();

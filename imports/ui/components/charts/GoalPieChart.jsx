@@ -7,7 +7,7 @@ class Piechart extends PureComponent {
   }
   render() {
     const { data, colors, dataLength } = this.props;
-    console.log(dataLength);
+
     if (!data.length) {
       return null;
     }

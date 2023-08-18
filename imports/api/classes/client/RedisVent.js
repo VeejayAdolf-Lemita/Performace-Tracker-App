@@ -92,6 +92,21 @@ class RedisVent {
     return this;
   }
 
+  get ActiveMember() {
+    this.#pre = 'activemember';
+    return this;
+  }
+
+  get ActiveMemberYesterday() {
+    this.#pre = 'activememberyesterday';
+    return this;
+  }
+
+  get ActiveMemberWeekly() {
+    this.#pre = 'activememberweekly';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

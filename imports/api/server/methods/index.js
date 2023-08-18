@@ -13,3 +13,4 @@ import './Timeline';
 import './Attendance';
 import './ActivityLvl';
 import './Feedback';
+import './Insights';

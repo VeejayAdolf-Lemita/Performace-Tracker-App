@@ -42,3 +42,7 @@ export const GetActivityLevel = 'get.activity.level';
 
 //360 Feedback
 export const GetFeedback = 'get.feedback';
+
+export const GetActiveMember = 'get.active';
+export const GetActiveMemberYesterday = 'get.active.yesterday';
+export const GetActiveMemberWeekly = 'get.active.weekly';
