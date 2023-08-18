@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import PieChart from './charts/PieChart';
 import GoalPieChart from './charts/GoalPieChart';
+import BarChart from './charts/BarChart';
 import Goals from '../../api/classes/client/goals/Goals';
 import Insight from '../../api/classes/client/insights/Insights';
 import Productivity from '../../api/classes/client/dashboard/Productivity';
+import Rating from '../../api/classes/client/dashboard/Rating';
 
 class Insights extends Component {
   constructor(props) {
@@ -12,10 +14,12 @@ class Insights extends Component {
     this.state = {
       goalState: '',
       productivityState: 'Today',
+      ratingState: 'Today',
     };
     Insight.setWatcher(this, 'Insights');
     Goals.setWatcher(this, 'Insights');
-    Productivity.setWatcher(this, 'Home');
+    Productivity.setWatcher(this, 'Insights');
+    Rating.setWatcher(this, 'Insights');
   }
 
   componentDidMount() {
@@ -24,6 +28,7 @@ class Insights extends Component {
     Insight.getActiveMemberWeekly();
     Goals.getGoals();
     Productivity.getProductivity(`${this.state.productivityState}`);
+    Rating.getRatings(`${this.state.ratingState}`);
   }
 
   handleGoalChange = (event) => {
@@ -40,6 +45,14 @@ class Insights extends Component {
 
   handleProductivityFilter = () => {
     Productivity.getProductivity(`${this.state.productivityState}`);
+  };
+
+  handleRatingChange = (event) => {
+    this.setState({ ratingState: event.target.value });
+  };
+
+  handleRatingFilter = () => {
+    Rating.getRatings(`${this.state.ratingState}`);
   };
 
   render() {
@@ -378,25 +391,39 @@ class Insights extends Component {
                       >
                         <div className='ry_cardtop'>
                           <div className='card_dashboard-label'>Top Members</div>
-                          <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <select
-                              id='field-3'
-                              name='field-3'
-                              data-name='Field 3'
                               className='ry_selectfieldsmall w-select'
+                              value={this.state.ratingState}
+                              onChange={this.handleRatingChange}
                             >
-                              <option value>Today</option>
-                              <option value='First'>First choice</option>
-                              <option value='Second'>Second choice</option>
-                              <option value='Third'>Third choice</option>
+                              <option value='Today'>Today</option>
+                              <option value='Weekly'>Weekly</option>
+                              <option value='Monthly'>Monthly</option>
+                              <option value='Yearly'>Yearly</option>
                             </select>
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              width='24'
+                              height='24'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              strokeWidth='1'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              className='feather feather-filter'
+                              style={{
+                                cursor: 'pointer',
+                              }}
+                              onClick={this.handleRatingFilter}
+                            >
+                              <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                            </svg>
                           </div>
                         </div>
                         <div className='ry_barchart'>
-                          <img
-                            src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f16df88baf63d40220dfa_chart_01.svg'
-                            className='image-100'
-                          />
+                          <BarChart data={this.props.rating} />
                         </div>
                       </form>
                     </div>
@@ -415,12 +442,13 @@ export default withTracker(() => {
   Goals.initiateWatch('Insights');
   Insight.initiateWatch('Insights');
   Productivity.initiateWatch('Insights');
-
+  Rating.initiateWatch('Insights');
   return {
     goals: Goals.Data,
     insights: Insight.DataToday,
     insightsYesterday: Insight.DataYesterday,
     insightsWeekly: Insight.DataWeekly,
     productivity: Productivity.Data,
+    rating: Rating.Data,
   };
 })(Insights);
