@@ -14,7 +14,7 @@ class Insights extends Component {
     this.state = {
       goalState: '',
       productivityState: 'Today',
-      ratingState: 'Today',
+      ratingState: 'Total',
     };
     Insight.setWatcher(this, 'Insights');
     Goals.setWatcher(this, 'Insights');
@@ -127,8 +127,7 @@ class Insights extends Component {
       .toString()
       .padStart(2, '0')}:${totalSecondsAll.toString().padStart(2, '0')}`;
 
-    console.log(this.props.insightsYesterday);
-    console.log(this.props.insights);
+    console.log(this.props.rating);
 
     const COLORS = ['#00b8b0', '#ccc', '#f4404e'];
     const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
@@ -397,10 +396,9 @@ class Insights extends Component {
                               value={this.state.ratingState}
                               onChange={this.handleRatingChange}
                             >
+                              <option value='Total'>Rating</option>
                               <option value='Today'>Today</option>
                               <option value='Weekly'>Weekly</option>
-                              <option value='Monthly'>Monthly</option>
-                              <option value='Yearly'>Yearly</option>
                             </select>
                             <svg
                               xmlns='http://www.w3.org/2000/svg'
