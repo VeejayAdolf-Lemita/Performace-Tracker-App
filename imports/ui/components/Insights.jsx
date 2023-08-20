@@ -56,6 +56,7 @@ class Insights extends Component {
   };
 
   render() {
+    console.log(this.props.productivity);
     const { insights, insightsYesterday, insightsWeekly } = this.props;
 
     let totalActiveTimeToday = 0;
@@ -324,7 +325,6 @@ class Insights extends Component {
                               <option value='Today'>Today</option>
                               <option value='Weekly'>Weekly</option>
                               <option value='Monthly'>Monthly</option>
-                              <option value='Yearly'>Yearly</option>
                             </select>
                             <svg
                               xmlns='http://www.w3.org/2000/svg'

@@ -6,7 +6,7 @@ class Piechart extends PureComponent {
     super(props);
   }
   render() {
-    const { data, colors } = this.props;
+    const { data } = this.props;
     if (!data.length) {
       return null;
     }
@@ -21,9 +21,18 @@ class Piechart extends PureComponent {
         <ResponsiveContainer minWidth={220} minHeight={220} width='100%'>
           <PieChart onMouseEnter={this.onPieEnter}>
             <Pie data={data} cx={105} cy={105} innerRadius={97} outerRadius={110} dataKey='value'>
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-              ))}
+              {data.map((entry, index) => {
+                if (entry.name === 'Productivity') {
+                  return <Cell key={`cell-${index}`} fill='#00b8b0' />;
+                }
+                if (entry.name === 'Neutral') {
+                  return <Cell key={`cell-${index}`} fill='#ccc' />;
+                }
+                if (entry.name === 'Non-Productive') {
+                  return <Cell key={`cell-${index}`} fill='#f4404e' />;
+                }
+                return null;
+              })}
               <Label
                 value={`${data[0].value}%`}
                 position='center'

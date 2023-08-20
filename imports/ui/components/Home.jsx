@@ -9,7 +9,6 @@ import Activity from '../../api/classes/client/dashboard/Activity';
 import Rating from '../../api/classes/client/dashboard/Rating';
 import Goals from '../../api/classes/client/goals/Goals';
 
-const COLORS = ['#00b8b0', '#ccc', '#f4404e'];
 const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
 
 const now = new Date();
@@ -20,7 +19,7 @@ class Home extends Component {
     super(props);
     this.state = {
       productivityState: 'Today',
-      ratingState: 'Today',
+      ratingState: 'Total',
     };
     Client.setWatcher(this, 'Home');
     Productivity.setWatcher(this, 'Home');
@@ -58,6 +57,10 @@ class Home extends Component {
     this.setState({ ratingState: event.target.value });
     Rating.getRatings(`${this.state.ratingState}`);
   }
+
+  handleRatingFilter = () => {
+    Rating.getRatings(`${this.state.ratingState}`);
+  };
 
   render() {
     const achieved = this.props.goals.filter((goal) => goal.achieved);
@@ -227,7 +230,6 @@ class Home extends Component {
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
                             <option value='Monthly'>Monthly</option>
-                            <option value='Yearly'>Yearly</option>
                           </select>
                           <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -270,7 +272,7 @@ class Home extends Component {
                           ))}
                         </div>
                         <div className='ry_cardcontent-style2_right'>
-                          <Piechart data={this.props.productivity} colors={COLORS} />
+                          <Piechart data={this.props.productivity} />
                         </div>
                       </div>
                     </div>
@@ -411,17 +413,34 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Top Members</div>
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <select
                             className='ry_selectfieldsmall w-select'
                             value={this.state.ratingState}
                             onChange={this.handleRatingChange}
                           >
+                            <option value='Total'>Rating</option>
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
-                            <option value='Monthly'>Monthly</option>
-                            <option value='Yearly'>Yearly</option>
                           </select>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='1'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            className='feather feather-filter'
+                            style={{
+                              cursor: 'pointer',
+                            }}
+                            onClick={this.handleRatingFilter}
+                          >
+                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                          </svg>
                         </div>
                       </div>
                       <div className='ry_barchart'>

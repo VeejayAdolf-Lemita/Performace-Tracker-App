@@ -142,7 +142,7 @@ class ActivityLevel extends Component {
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>
-                      {averageProductivity === 'NaN' ? 'N/A' : `${averageProductivity}%`}
+                      {averageProductivity === 'NaN%' ? 'N/A' : `${averageProductivity}%`}
                     </h1>
                   </div>
                 </div>

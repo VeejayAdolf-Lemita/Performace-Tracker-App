@@ -72,6 +72,8 @@ if (Meteor.isServer) {
         .getDate()
         .toString()
         .padStart(2, '0')}/${today.getFullYear()}`;
+
+      console.log(formattedStartOfWeek);
       const pipeline = [
         {
           $match: {
