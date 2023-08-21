@@ -60,7 +60,7 @@ export default class Watcher {
     this.users.deny({ update: () => true });
     this.#logout = Meteor.logout;
     Meteor.users = null;
-    Meteor.user = () => {};
+    // Meteor.user = () => {};
     Meteor.loginWithPassword = () => {};
     Meteor.loginWithToken = () => {};
     Meteor.logout = () => {};
@@ -68,6 +68,7 @@ export default class Watcher {
     Meteor.subscribe = () => {};
     Meteor.settings.public = {};
   }
+
   logout() {
     this.#logout(() => {
       window.location.reload();

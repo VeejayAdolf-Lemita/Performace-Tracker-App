@@ -1,4 +1,5 @@
 import Watcher from './Watcher';
+import { Accounts } from 'meteor/accounts-base';
 
 class Client extends Watcher {
   constructor(parent) {
@@ -7,6 +8,18 @@ class Client extends Watcher {
   }
   init() {
     return this.subscribe('users');
+  }
+
+  changePassword(oldPassword, newPassword) {
+    Accounts.changePassword(oldPassword, newPassword, function (error) {
+      if (error) {
+        // Password change failed, handle the error
+        console.error('Password change failed:', error.message);
+      } else {
+        // Password change succeeded
+        console.log('Password changed successfully');
+      }
+    });
   }
 
   loginWithPassword(email, password) {

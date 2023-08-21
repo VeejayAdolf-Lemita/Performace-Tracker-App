@@ -2,6 +2,7 @@
 export const GetProductivity = 'get.productivity';
 export const GetActivity = 'get.activity.dashboard';
 export const GetRating = 'get.rating';
+export const GetActive = 'get.active.members';
 
 //Review
 export const GetReviews = 'get.reviews';

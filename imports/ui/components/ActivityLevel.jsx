@@ -38,6 +38,30 @@ class ActivityLevel extends Component {
     ActivityLevels.getActivityLvl(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
   };
 
+  handleExport = () => {
+    const activityLvlData = this.props.activityLvl;
+
+    // Convert the data to a suitable format (e.g., CSV, JSON, Excel, etc.)
+    // For demonstration purposes, we'll use CSV format
+    let csvContent = 'Name,Project,Mon,Tue,Wed,Thu,Fri,Average,\n';
+    activityLvlData.forEach((data) => {
+      const row = `${data.Name},${data.Department},${data.Mon},${data.Tue},${data.Wed},${data.Thu},${data.Fri},${data.AverageActivity},\n`;
+      csvContent += row;
+    });
+
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    // Create a download link and trigger the download
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = 'activityLvlData.csv';
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
     const { activityLvl } = this.props;
@@ -181,7 +205,10 @@ class ActivityLevel extends Component {
                       />
                       <div>Filter</div>
                     </div>
-                    <div className='ry_icon-btn-style1 outline mr-10 w-inline-block'>
+                    <div
+                      className='ry_icon-btn-style1 outline mr-10 w-inline-block'
+                      onClick={this.handleExport}
+                    >
                       <img
                         src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648082396af282519c4e2818_report_01.svg'
                         className='icon-btn_asset'

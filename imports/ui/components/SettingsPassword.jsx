@@ -7,53 +7,37 @@ class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      oldPassword: '',
       password: '',
       confirmPassword: '',
     };
     Client.setWatcher(this, 'Settings');
   }
 
-  handleEditProfile = (e) => {
+  handleEditProfile = async (e) => {
     e.preventDefault();
-    const { password, confirmPassword } = this.state;
+    const { oldPassword, password, confirmPassword } = this.state;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*()\-_=+~<>?/{}[\]]{8,}$/;
 
     // Check if any required field is empty
-    if (!password.trim() && confirmPassword.trim()) {
+    if (!oldPassword.trim() || !password.trim() || !confirmPassword.trim()) {
       alert('Please fill up all required fields.');
       return;
     }
-
     if (password === confirmPassword) {
       if (!passwordRegex.test(password)) {
         alert(
           'Password must have at least 8 characters, one uppercase letter, one lowercase letter, and one number',
         );
       } else {
-        Client.users.update(
-          { _id: `${this.props.Client._id}` },
-          {
-            $set: {
-              services: {
-                password: password,
-              },
-            },
-          },
-        );
-        alert('Changes are already submitted');
-        this.setState({
-          password: '',
-          confirmPassword: '',
-        });
+        Client.changePassword(oldPassword, password);
       }
     } else {
       alert("Password don't match");
-      return;
     }
   };
 
   render() {
-    console.log(this.state.fullName);
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -97,6 +81,25 @@ class Settings extends Component {
                           <div className='w-tab-pane w--tab-active'>
                             <div className='w-form'>
                               <form>
+                                <div className='ry_formrow'>
+                                  <div className='ry_formcol'>
+                                    <div className='form-row'>
+                                      <label className='ry_field-label-style1'>Old Password</label>
+                                      <div className='form-control'>
+                                        <input
+                                          type='password'
+                                          className='ry_text-field-style1 w-input'
+                                          maxLength={256}
+                                          value={this.state.oldPassword}
+                                          onChange={(e) =>
+                                            this.setState({ oldPassword: e.target.value })
+                                          }
+                                          required
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                                 <div className='ry_formrow'>
                                   <div className='ry_formcol'>
                                     <div className='form-row'>

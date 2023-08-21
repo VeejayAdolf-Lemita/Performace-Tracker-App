@@ -36,7 +36,7 @@ if (Meteor.isServer) {
       const formattedMonth = (yesterday.getMonth() + 1).toString().padStart(2, '0');
       const formattedDay = yesterday.getDate().toString().padStart(2, '0');
       const formattedYesterday = `${formattedMonth}/${formattedDay}/${yesterday.getFullYear()}`;
-      console.log(formattedYesterday);
+
       const pipeline = [
         {
           $match: {

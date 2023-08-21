@@ -1,5 +1,5 @@
-import { AttendanceCollection } from '../../db';
-import { GetAttendance } from '../../common';
+import { AttendanceCollection, EmployeesCollection } from '../../db';
+import { GetAttendance, GetActive } from '../../common';
 
 if (Meteor.isServer) {
   Meteor.methods({
@@ -68,6 +68,166 @@ if (Meteor.isServer) {
           };
         });
         return formattedData;
+      }
+    },
+    [GetActive]: function (data) {
+      if (data === 'Today') {
+        const today = new Date();
+        const formattedMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+        const formattedDay = today.getDate().toString().padStart(2, '0');
+        const formattedToday = `${formattedMonth}/${formattedDay}/${today.getFullYear()}`;
+        const pipeline = [
+          {
+            $match: {
+              date: formattedToday,
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              timeIn: 1,
+              timeOut: 1,
+            },
+          },
+          {
+            $addFields: {
+              earlyLeaving: {
+                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
+              },
+              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+            },
+          },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 },
+              earlyLeavingCount: { $sum: '$earlyLeaving' },
+              lateArrivalCount: { $sum: '$lateArrival' },
+            },
+          },
+          {
+            $project: {
+              status: '$_id',
+              count: 1,
+              earlyLeavingCount: 1,
+              lateArrivalCount: 1,
+              _id: 0,
+            },
+          },
+        ];
+
+        const dashboardActive = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
+        return dashboardActive;
+      } else if (data === 'Weekly') {
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+
+        const formattedStartOfWeek = `${(startOfWeek.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}/${startOfWeek
+          .getDate()
+          .toString()
+          .padStart(2, '0')}/${startOfWeek.getFullYear()}`;
+        const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today
+          .getDate()
+          .toString()
+          .padStart(2, '0')}/${today.getFullYear()}`;
+        const pipeline = [
+          {
+            $match: {
+              date: {
+                $gte: formattedStartOfWeek,
+                $lte: formattedToday,
+              },
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              timeIn: 1,
+              timeOut: 1,
+            },
+          },
+          {
+            $addFields: {
+              earlyLeaving: {
+                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
+              },
+              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+            },
+          },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 },
+              earlyLeavingCount: { $sum: '$earlyLeaving' },
+              lateArrivalCount: { $sum: '$lateArrival' },
+            },
+          },
+          {
+            $project: {
+              status: '$_id',
+              count: 1,
+              earlyLeavingCount: 1,
+              lateArrivalCount: 1,
+              _id: 0,
+            },
+          },
+        ];
+
+        const dashboardActive = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
+        return dashboardActive;
+      } else if (data === 'Yesterday') {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        const formattedMonth = (yesterday.getMonth() + 1).toString().padStart(2, '0');
+        const formattedDay = yesterday.getDate().toString().padStart(2, '0');
+        const formattedYesterday = `${formattedMonth}/${formattedDay}/${yesterday.getFullYear()}`;
+        const pipeline = [
+          {
+            $match: {
+              date: formattedYesterday,
+            },
+          },
+          {
+            $project: {
+              status: 1,
+              timeIn: 1,
+              timeOut: 1,
+            },
+          },
+          {
+            $addFields: {
+              earlyLeaving: {
+                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
+              },
+              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+            },
+          },
+          {
+            $group: {
+              _id: '$status',
+              count: { $sum: 1 },
+              earlyLeavingCount: { $sum: '$earlyLeaving' },
+              lateArrivalCount: { $sum: '$lateArrival' },
+            },
+          },
+          {
+            $project: {
+              status: '$_id',
+              count: 1,
+              earlyLeavingCount: 1,
+              lateArrivalCount: 1,
+              _id: 0,
+            },
+          },
+        ];
+
+        const dashboardActive = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
+        return dashboardActive;
       }
     },
   });

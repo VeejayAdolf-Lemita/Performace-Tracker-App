@@ -107,6 +107,16 @@ class RedisVent {
     return this;
   }
 
+  get ActiveAttendance() {
+    this.#pre = 'activeattendance';
+    return this;
+  }
+
+  get ActiveAttendance() {
+    this.#pre = 'activeattendance';
+    return this;
+  }
+
   /**
    * Prepare a mini mongo before subscribing to Vents subscription
    * @param {String} key

@@ -8,6 +8,8 @@ import Productivity from '../../api/classes/client/dashboard/Productivity';
 import Activity from '../../api/classes/client/dashboard/Activity';
 import Rating from '../../api/classes/client/dashboard/Rating';
 import Goals from '../../api/classes/client/goals/Goals';
+import Attendance from '../../api/classes/client/dashboard/Attendance';
+import Employees from '../../api/classes/client/review/Employees';
 
 const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
 
@@ -20,12 +22,15 @@ class Home extends Component {
     this.state = {
       productivityState: 'Today',
       ratingState: 'Total',
+      attendance: 'Today',
     };
     Client.setWatcher(this, 'Home');
     Productivity.setWatcher(this, 'Home');
     Goals.setWatcher(this, 'Home');
     Activity.setWatcher(this, 'Home');
     Rating.setWatcher(this, 'Home');
+    Attendance.setWatcher(this, 'Home');
+    Employees.setWatcher(this, 'Home');
     this.handleProductivityChange = this.handleProductivityChange.bind(this);
     this.handleRatingChange = this.handleRatingChange.bind(this);
   }
@@ -35,6 +40,8 @@ class Home extends Component {
     Rating.getRatings(`${this.state.ratingState}`);
     Activity.getActivity();
     Goals.getGoals();
+    Attendance.getActiveAttendance(`${this.state.attendance}`);
+    Employees.getEmployees();
   }
 
   handleProductivityChange(event) {
@@ -62,7 +69,36 @@ class Home extends Component {
     Rating.getRatings(`${this.state.ratingState}`);
   };
 
+  handleAttendanceFilter = () => {
+    Attendance.getActiveAttendance(`${this.state.attendance}`);
+  };
   render() {
+    console.log(this.props.activity);
+    const dashboardActive = this.props.attendance;
+
+    // Find the count of "Absent" status
+    const absentStatus = dashboardActive.find((item) => item.status === 'Absent');
+    const absentCount = absentStatus ? absentStatus.count : 0;
+
+    // Find the total count of all records
+    const totalCount = dashboardActive.reduce((total, item) => total + item.count, 0);
+
+    // Calculate the percentage
+    const absentPercentage = (absentCount / totalCount) * 100;
+
+    const earlyLeavingStatus = dashboardActive.find((item) => item.status === 'Present');
+    const earlyLeavingCount = earlyLeavingStatus ? earlyLeavingStatus.earlyLeavingCount : 0;
+
+    const lateArrivalStatus = dashboardActive.find((item) => item.status === 'Present');
+    const lateArrivalCount = lateArrivalStatus ? lateArrivalStatus.lateArrivalCount : 0;
+
+    // Find the total count of all "Present" records
+    const totalPresentCount = earlyLeavingCount + lateArrivalCount;
+
+    // Calculate the percentages
+    const earlyLeavingPercentage = (earlyLeavingCount / totalPresentCount) * 100;
+    const lateArrivalPercentage = (lateArrivalCount / totalPresentCount) * 100;
+
     const achieved = this.props.goals.filter((goal) => goal.achieved);
     const inprogress = this.props.goals.filter((goal) => goal.percentage < 60);
     const deferred = this.props.goals.filter((goal) => goal.percentage >= 80);
@@ -347,27 +383,45 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Attendance</div>
-                        <div>
-                          <select className='ry_selectfieldsmall w-select'>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <select
+                            className='ry_selectfieldsmall w-select'
+                            value={this.state.attendance}
+                            onChange={(e) => this.setState({ attendance: e.target.value })}
+                          >
                             <option value>Today</option>
-                            <option value='First'>Weekly</option>
-                            <option value='Second'>Monthly</option>
-                            <option value='Third'>Yearly</option>
+                            <option value='Yesterday'>Yesterday</option>
+                            <option value='Weekly'>Weekly</option>
                           </select>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='1'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            className='feather feather-filter'
+                            style={{
+                              cursor: 'pointer',
+                            }}
+                            onClick={this.handleAttendanceFilter}
+                          >
+                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style1'>
                         <div className='card_dashboard_top-left mb-10'>
                           <div className='ry_icon-style2'>
-                            <img
-                              src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f13dcda12f6eb616b3ae6_icon_attendance.svg'
-                              loading='lazy'
-                              alt=''
-                            />
+                            <img src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f13dcda12f6eb616b3ae6_icon_attendance.svg' />
                           </div>
                           <div className='div-block-382'>
-                            <h1 className='ry_h4-display1'>50 of 80 active</h1>
-                            <div className='ry_p-style1'>from yesterday (70)</div>
+                            <h1 className='ry_h4-display1'>
+                              {totalCount} of {this.props.employees.length} active
+                            </h1>
                           </div>
                         </div>
                         <div className='ry_cardcontent_row no-border'>
@@ -376,7 +430,9 @@ class Home extends Component {
                             <p className='ry_p-style1 mb-0'>Late</p>
                           </div>
                           <div className='ry_cardcontent_rowcol _w-10'>
-                            <p className='ry_p-style1 mb-0 text-darkblue'>85%</p>
+                            <p className='ry_p-style1 mb-0 text-darkblue'>{`${
+                              isNaN(lateArrivalPercentage) ? '0' : lateArrivalPercentage.toFixed(2)
+                            }%`}</p>
                           </div>
                         </div>
                         <div className='ry_cardcontent_row no-border'>
@@ -385,25 +441,23 @@ class Home extends Component {
                             <p className='ry_p-style1 mb-0'>Early Leaving</p>
                           </div>
                           <div className='ry_cardcontent_rowcol _w-10'>
-                            <p className='ry_p-style1 mb-0 text-darkblue'>85%</p>
+                            <p className='ry_p-style1 mb-0 text-darkblue'>{`${
+                              isNaN(earlyLeavingPercentage)
+                                ? '0'
+                                : earlyLeavingPercentage.toFixed(2)
+                            }%`}</p>
                           </div>
                         </div>
-                        <div className='ry_cardcontent_row no-border'>
-                          <div className='ry_cardcontent_rowcol'>
-                            <div className='div-block-391 bg-violet' />
-                            <p className='ry_p-style1 mb-0'>Less Tracking</p>
-                          </div>
-                          <div className='ry_cardcontent_rowcol _w-10'>
-                            <p className='ry_p-style1 mb-0 text-darkblue'>85%</p>
-                          </div>
-                        </div>
+
                         <div className='ry_cardcontent_row no-border'>
                           <div className='ry_cardcontent_rowcol'>
                             <div className='div-block-391 bg-gray' />
                             <p className='ry_p-style1 mb-0'>Absent</p>
                           </div>
                           <div className='ry_cardcontent_rowcol _w-10'>
-                            <p className='ry_p-style1 mb-0 text-darkblue'>85%</p>
+                            <p className='ry_p-style1 mb-0 text-darkblue'>{`${
+                              isNaN(absentPercentage) ? '0' : absentPercentage.toFixed(2)
+                            }%`}</p>
                           </div>
                         </div>
                       </div>
@@ -463,6 +517,8 @@ export default withTracker(() => {
   Goals.setWatcher(this, 'Goals');
   Activity.initiateWatch('Home');
   Rating.initiateWatch('Home');
+  Attendance.initiateWatch('Home');
+  Employees.initiateWatch('Home');
   return {
     isReady: Client.init(),
     Client: Client.user(),
@@ -470,5 +526,7 @@ export default withTracker(() => {
     goals: Goals.Data,
     activity: Activity.Data,
     rating: Rating.Data,
+    attendance: Attendance.Data,
+    employees: Employees.Data,
   };
 })(Home);
