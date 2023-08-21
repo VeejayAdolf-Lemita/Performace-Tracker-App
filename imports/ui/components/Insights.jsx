@@ -56,7 +56,6 @@ class Insights extends Component {
   };
 
   render() {
-    console.log(this.props.productivity);
     const { insights, insightsYesterday, insightsWeekly } = this.props;
 
     let totalActiveTimeToday = 0;
@@ -127,8 +126,6 @@ class Insights extends Component {
     const formattedTotalActiveTimeAll = `${totalHoursAll}:${totalMinutesAll
       .toString()
       .padStart(2, '0')}:${totalSecondsAll.toString().padStart(2, '0')}`;
-
-    console.log(this.props.rating);
 
     const COLORS = ['#00b8b0', '#ccc', '#f4404e'];
     const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];

@@ -53,19 +53,6 @@ class Feedback extends Component {
   };
 
   render() {
-    // const feedbackData = this.props.feedback.data;
-    // console.log('Feedback Data:', this.props.feedback.data);
-
-    // let totalResult = 0;
-    // let totalComparison = 0;
-    // let totalGap = 0;
-
-    // for (const item of feedbackData) {
-    //   totalResult += item.result;
-    //   totalComparison += item.comparison;
-    //   totalGap += item.gap;
-    // }
-
     let totalResult = 0;
     let totalComparison = 0;
     let totalGap = 0;
@@ -79,9 +66,6 @@ class Feedback extends Component {
       });
     });
 
-    // console.log('Total Result:', totalResult);
-    // console.log('Total Comparison:', totalComparison);
-    // console.log('Total Gap:', totalGap);
     return (
       <div className='ry_main-style1'>
         {this.props.feedback.map((data) => (

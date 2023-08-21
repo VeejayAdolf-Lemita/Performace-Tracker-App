@@ -19,7 +19,6 @@ class ActivityLevel extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-      console.log(formattedDate);
     }
   };
 
@@ -30,7 +29,6 @@ class ActivityLevel extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
-      console.log(formattedDate);
     }
   };
 
@@ -117,7 +115,6 @@ class ActivityLevel extends Component {
     const averageOfficeTimeFormatted = `${averageOfficeHours
       .toString()
       .padStart(2, '0')}:${averageOfficeMinutes.toString().padStart(2, '0')}`;
-    console.log(this.props.activityLvl);
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>

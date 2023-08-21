@@ -77,7 +77,6 @@ class Teams extends Component {
 
   render() {
     const { teamsFilter, openModal, name, position, departmentName } = this.state;
-    console.log(this.state.member);
     return (
       <div className='ry_main-style1'>
         <div className='ry_add-review-popup' style={{ display: openModal ? 'flex' : 'none' }}>

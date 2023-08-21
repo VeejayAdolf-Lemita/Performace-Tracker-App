@@ -41,10 +41,7 @@ class Attendance extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-      console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter);
   };
 
   handleDateChange2 = (event) => {
@@ -54,10 +51,7 @@ class Attendance extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
-      console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter);
   };
 
   handleAttendanceFilter = () => {

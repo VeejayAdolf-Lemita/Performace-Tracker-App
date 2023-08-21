@@ -48,10 +48,7 @@ class Timesheet extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-      console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter);
   };
 
   handleTimeSheetFilter = () => {

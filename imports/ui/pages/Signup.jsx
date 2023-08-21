@@ -24,9 +24,6 @@ class Signup extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     const { username, email, password } = this.state;
-    console.log('Username:', username);
-    console.log('Email:', email);
-    console.log('Password:', password);
     Accounts.createUser({ profile: { username }, email, password }, (err) => {
       if (err) {
         alert(err.reason);

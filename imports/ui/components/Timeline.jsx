@@ -23,10 +23,7 @@ class Timeline extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-      console.log(formattedDate);
     }
-
-    console.log(this.state.dateFilter);
   };
 
   handleDateChange2 = (event) => {
@@ -36,10 +33,7 @@ class Timeline extends Component {
     if (year && month && day) {
       const formattedDate = `${month}/${day}/${year}`;
       this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue2 }); // Update both states
-      console.log(formattedDate);
     }
-
-    console.log(typeof this.state.dateFilter2);
   };
 
   handleTimelinetFilter = () => {
@@ -72,8 +66,6 @@ class Timeline extends Component {
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
-    console.log(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
-    console.log(this.props.timeline);
     const timelineData = this.props.timeline;
     let totalOfficeTimeMinutes = 0;
 

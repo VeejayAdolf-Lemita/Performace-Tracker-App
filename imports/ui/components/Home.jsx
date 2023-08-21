@@ -73,7 +73,6 @@ class Home extends Component {
     Attendance.getActiveAttendance(`${this.state.attendance}`);
   };
   render() {
-    console.log(this.props.activity);
     const dashboardActive = this.props.attendance;
 
     // Find the count of "Absent" status

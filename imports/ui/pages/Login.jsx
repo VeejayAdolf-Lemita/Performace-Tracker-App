@@ -23,8 +23,6 @@ class Login extends Component {
   handleSubmit = (e) => {
     const { email, password } = this.state;
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password', password);
     Client.loginWithPassword(email, password);
   };
 
