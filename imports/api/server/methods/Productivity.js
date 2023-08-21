@@ -24,8 +24,8 @@ if (Meteor.isServer) {
           },
           {
             $project: {
-              name: '$_id',
               value: '$value',
+              name: '$_id',
               _id: 0,
             },
           },
@@ -69,12 +69,6 @@ if (Meteor.isServer) {
               name: '$_id',
               value: '$value',
               _id: 0,
-            },
-          },
-
-          {
-            $sort: {
-              rating: -1,
             },
           },
         ];

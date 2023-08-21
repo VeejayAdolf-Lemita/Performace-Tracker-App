@@ -348,27 +348,23 @@ class Insights extends Component {
                         </div>
                         <div className='ry_cardcontent-style2'>
                           <div className='ry_cardcontent-style2_left'>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391' />
-                                <h1 className='ry_h3-display1 weight-semibold'>70%</h1>
+                            {this.props.productivity.map((data) => (
+                              <div className='ry_productivitylabel_container' key={data._id}>
+                                <div className='ry_productivitylabel'>
+                                  {data.name === 'Productivity' ? (
+                                    <div className='div-block-391 bg-green' />
+                                  ) : data.name === 'Neutral' ? (
+                                    <div className='div-block-391 bg-gray' />
+                                  ) : data.name === 'Non-Productive' ? (
+                                    <div className='div-block-391 bg-red' />
+                                  ) : (
+                                    ''
+                                  )}
+                                  <h1 className='ry_h3-display1 weight-semibold'>{`${data.value}%`}</h1>
+                                </div>
+                                <div className='ry_p-style1'>{data.name}</div>
                               </div>
-                              <div className='ry_p-style1'>Productivity</div>
-                            </div>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391 bg-gray' />
-                                <h1 className='ry_h3-display1 weight-semibold'>25%</h1>
-                              </div>
-                              <div className='ry_p-style1'>Neutral</div>
-                            </div>
-                            <div className='ry_productivitylabel_container'>
-                              <div className='ry_productivitylabel'>
-                                <div className='div-block-391 bg-red' />
-                                <h1 className='ry_h3-display1 weight-semibold'>5%</h1>
-                              </div>
-                              <div className='ry_p-style1'>Non- Productive</div>
-                            </div>
+                            ))}
                           </div>
                           <div className='ry_cardcontent-style2_right'>
                             <PieChart data={this.props.productivity} colors={COLORS} />

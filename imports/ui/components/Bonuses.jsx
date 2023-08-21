@@ -234,11 +234,7 @@ class Bonuses extends Component {
                     />
                     <div>Filter</div>
                   </div>
-                  <div
-                    data-w-id='6dc26d81-ab1b-1162-95e2-e6f87988e689'
-                    className='ry_icon-btn-style1 w-inline-block'
-                    onClick={this.handleOpenModal}
-                  >
+                  <div className='ry_icon-btn-style1 w-inline-block' onClick={this.handleOpenModal}>
                     <img
                       src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647eeef43d800823119afa9f_icon_add-white.svg'
                       loading='lazy'

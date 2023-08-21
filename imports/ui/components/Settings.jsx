@@ -1,6 +1,55 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { withTracker } from 'meteor/react-meteor-data';
+import Client from '../../api/classes/client/Client';
 
-export default class Settings extends Component {
+class SettingsPassword extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fullName: '',
+      lastName: '',
+      email: '',
+      timezone: '',
+      birthday: '',
+      password: '',
+      position: '',
+    };
+    Client.setWatcher(this, 'Settings');
+  }
+
+  handleEditProfile = (e) => {
+    e.preventDefault();
+
+    const { fullName, lastName, email, timezone, birthday, position } = this.state;
+
+    Client.users.update(
+      { _id: `${this.props.Client._id}` },
+      {
+        $set: {
+          profile: {
+            firstName: 'John',
+            username: fullName,
+            lastName: lastName,
+            email: email,
+            timezone: timezone,
+            birthday: birthday,
+            position: position,
+          },
+        },
+      },
+    );
+    alert('Changes are already submitted');
+    this.setState({
+      fullName: '',
+      lastName: '',
+      email: '',
+      timezone: '',
+      birthday: '',
+      position: '',
+    });
+  };
+
   render() {
     return (
       <div className='ry_main-style1'>
@@ -28,12 +77,18 @@ export default class Settings extends Component {
                     <div className='ry_settingscard'>
                       <div className='w-tabs'>
                         <div className='ry_tabsmenu-style2 w-tab-menu' role='tablist'>
-                          <div className='ry_tablink-style2 w-inline-block w-tab-link w--current'>
+                          <Link
+                            to='/settings-profile'
+                            className='ry_tablink-style2 w-inline-block w-tab-link w--current'
+                          >
                             <div>General</div>
-                          </div>
-                          <div className='ry_tablink-style2 w-inline-block w-tab-link'>
+                          </Link>
+                          <Link
+                            to='/settings-password'
+                            className='ry_tablink-style2 w-inline-block w-tab-link'
+                          >
                             <div>Manage Passwords</div>
-                          </div>
+                          </Link>
                         </div>
                         <div className='w-tab-content'>
                           <div className='w-tab-pane w--tab-active'>
@@ -42,74 +97,34 @@ export default class Settings extends Component {
                                 <div className='ry_formrow'>
                                   <div className='ry_formcol'>
                                     <div className='form-row'>
-                                      <label htmlFor className='ry_field-label-style1'>
-                                        Full Name
-                                      </label>
+                                      <label className='ry_field-label-style1'>Full Name</label>
                                       <div className='form-control'>
                                         <input
                                           type='text'
                                           className='ry_text-field-style1 w-input'
                                           maxLength={256}
-                                          name='name-2'
-                                          data-name='Name 2'
-                                          placeholder
-                                          id='name-2'
+                                          value={this.state.fullName}
+                                          onChange={(e) =>
+                                            this.setState({ fullName: e.target.value })
+                                          }
+                                          required
                                         />
                                       </div>
                                     </div>
                                   </div>
                                   <div className='ry_formcol'>
                                     <div className='form-row'>
-                                      <label htmlFor className='ry_field-label-style1'>
-                                        Last Name
-                                      </label>
+                                      <label className='ry_field-label-style1'>Last Name</label>
                                       <div className='form-control'>
                                         <input
                                           type='text'
                                           className='ry_text-field-style1 w-input'
                                           maxLength={256}
-                                          name='name-2'
-                                          data-name='Name 2'
-                                          placeholder
-                                          id='name-2'
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className='ry_formrow'>
-                                  <div className='ry_formcol'>
-                                    <div className='form-row'>
-                                      <label htmlFor className='ry_field-label-style1'>
-                                        Email
-                                      </label>
-                                      <div className='form-control'>
-                                        <input
-                                          type='text'
-                                          className='ry_text-field-style1 w-input'
-                                          maxLength={256}
-                                          name='name-2'
-                                          data-name='Name 2'
-                                          placeholder
-                                          id='name-2'
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className='ry_formcol'>
-                                    <div className='form-row'>
-                                      <label htmlFor className='ry_field-label-style1'>
-                                        Birthday
-                                      </label>
-                                      <div className='form-control'>
-                                        <input
-                                          type='text'
-                                          className='ry_text-field-style1 w-input'
-                                          maxLength={256}
-                                          name='name-2'
-                                          data-name='Name 2'
-                                          placeholder
-                                          id='name-2'
+                                          value={this.state.lastName}
+                                          onChange={(e) =>
+                                            this.setState({ lastName: e.target.value })
+                                          }
+                                          required
                                         />
                                       </div>
                                     </div>
@@ -118,25 +133,81 @@ export default class Settings extends Component {
                                 <div className='ry_formrow'>
                                   <div className='ry_formcol'>
                                     <div className='form-row'>
-                                      <label htmlFor className='ry_field-label-style1'>
-                                        Your Timezone
-                                      </label>
+                                      <label className='ry_field-label-style1'>Email</label>
+                                      <div className='form-control'>
+                                        <input
+                                          type='text'
+                                          className='ry_text-field-style1 w-input'
+                                          maxLength={256}
+                                          value={this.state.email}
+                                          onChange={(e) => this.setState({ email: e.target.value })}
+                                          required
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className='ry_formcol'>
+                                    <div className='form-row'>
+                                      <label className='ry_field-label-style1'>Birthday</label>
+                                      <div className='form-control'>
+                                        <input
+                                          type='date'
+                                          className='ry_text-field-style1 w-input'
+                                          maxLength={256}
+                                          value={this.state.birthday}
+                                          onChange={(e) =>
+                                            this.setState({ birthday: e.target.value })
+                                          }
+                                          required
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className='ry_formrow'>
+                                  <div className='ry_formcol'>
+                                    <div className='form-row'>
+                                      <label className='ry_field-label-style1'>Your Timezone</label>
                                       <div className='form-control'>
                                         <input
                                           type='text'
                                           className='ry_text-field-style1 w-input'
                                           placeholder='(UTC+00:00) UTC'
+                                          required
                                         />
                                       </div>
                                     </div>
                                   </div>
                                   <div className='ry_formcol'>
                                     <div className='form-row'>
-                                      <label className='ry_field-label-style1'>{`Edit Profile`}</label>
+                                      <label className='ry_field-label-style1'>Position</label>
                                       <div className='form-control'>
-                                        <button>Submit Changes</button>
+                                        <input
+                                          type='text'
+                                          className='ry_text-field-style1 w-input'
+                                          value={this.state.position}
+                                          onChange={(e) =>
+                                            this.setState({ position: e.target.value })
+                                          }
+                                          required
+                                        />
                                       </div>
                                     </div>
+                                  </div>
+                                </div>
+                                <div
+                                  style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                  }}
+                                >
+                                  <div
+                                    className='ry_icon-btn-style1 w-inline-block'
+                                    style={{ width: '200px' }}
+                                    onClick={this.handleEditProfile}
+                                  >
+                                    <div>Submit Changes</div>
                                   </div>
                                 </div>
                               </form>
@@ -155,3 +226,11 @@ export default class Settings extends Component {
     );
   }
 }
+
+export default withTracker(() => {
+  Client.initiateWatch('Settings');
+  return {
+    isReady: Client.init(),
+    Client: Client.user(),
+  };
+})(SettingsPassword);

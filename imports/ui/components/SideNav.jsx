@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { withTracker } from 'meteor/react-meteor-data';
+import Client from '../../api/classes/client/Client';
 
-export default class SideNav extends Component {
+class SideNav extends Component {
+  constructor(props) {
+    super(props);
+    Client.setWatcher(this, 'SideNav');
+  }
+
   handleLinkClick = (event) => {
     const links = document.querySelectorAll('.ry_sidemenu-link-style1');
     links.forEach((link) => {
@@ -16,7 +23,13 @@ export default class SideNav extends Component {
     event.currentTarget.classList.add('w--current');
   };
 
+  handleLogout = (e) => {
+    e.preventDefault();
+    Client.logout();
+  };
+
   render() {
+    Client.initiateWatch('SideNav');
     return (
       <div className='ry_sidebar-style1 div-block-27'>
         <div className='ry_sidebar-style1_top'>
@@ -362,7 +375,7 @@ export default class SideNav extends Component {
             </div>
           </div>
           <Link
-            to='settings'
+            to='settings-profile'
             className='ry_sidemenu-link-style1 w-inline-block'
             onClick={this.handleLinkClick}
           >
@@ -390,11 +403,7 @@ export default class SideNav extends Component {
               <div>Settings</div>
             </div>
           </Link>
-          <Link
-            to='/'
-            className='ry_sidemenu-link-style1 w-inline-block'
-            onClick={this.handleLinkClick}
-          >
+          <div className='ry_sidemenu-link-style1 w-inline-block' onClick={this.handleLogout}>
             <div className='sidemenu-link-style1_left'>
               <div className='ry_icon-side-embed w-embed'>
                 <svg
@@ -418,9 +427,13 @@ export default class SideNav extends Component {
               </div>
               <div>Sign Out</div>
             </div>
-          </Link>
+          </div>
         </div>
       </div>
     );
   }
 }
+
+export default withTracker(() => {
+  return {};
+})(SideNav);

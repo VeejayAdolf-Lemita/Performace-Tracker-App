@@ -20,6 +20,7 @@ import Feedback from './components/Feedback';
 import Insights from './components/Insights';
 import Settings from './components/Settings';
 import Notfound from './pages/Notfound';
+import SettingsPassword from './components/SettingsPassword';
 
 class App extends Component {
   constructor(props) {
@@ -45,7 +46,8 @@ class App extends Component {
             <Route path='activity-level' element={<ActivityLevel />} />
             <Route path='feedback' element={<Feedback />} />
             <Route path='insights' element={<Insights />} />
-            <Route path='settings' element={<Settings />} />
+            <Route path='settings-profile' element={<Settings />} />
+            <Route path='settings-password' element={<SettingsPassword />} />
           </Route>
           <Route path='login' element={!this.props.isReady ? <Login /> : <Login />} />
           <Route path='sign-up' element={<Signup />} />

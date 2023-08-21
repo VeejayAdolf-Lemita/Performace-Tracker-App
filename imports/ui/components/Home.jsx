@@ -127,7 +127,7 @@ class Home extends Component {
                         />
                       </div>
                       <div className='div-block-382'>
-                        <h1 className='ry_h3-display1'>{this.props.Client.profile.username}</h1>
+                        <h1 className='ry_h3-display1'>{this.props.Client.profile.firstName}</h1>
                         <div className='div-block-383'>
                           <div className='ry_iconsmall'>
                             <img
