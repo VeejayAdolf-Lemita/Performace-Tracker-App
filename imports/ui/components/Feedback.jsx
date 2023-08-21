@@ -53,6 +53,35 @@ class Feedback extends Component {
   };
 
   render() {
+    // const feedbackData = this.props.feedback.data;
+    // console.log('Feedback Data:', this.props.feedback.data);
+
+    // let totalResult = 0;
+    // let totalComparison = 0;
+    // let totalGap = 0;
+
+    // for (const item of feedbackData) {
+    //   totalResult += item.result;
+    //   totalComparison += item.comparison;
+    //   totalGap += item.gap;
+    // }
+
+    let totalResult = 0;
+    let totalComparison = 0;
+    let totalGap = 0;
+
+    // Iterate through each feedback entry and calculate the totals
+    this.props.feedback.forEach((data) => {
+      data.data.forEach((feedbackItem) => {
+        totalResult += feedbackItem.result;
+        totalComparison += feedbackItem.comparison;
+        totalGap += feedbackItem.gap;
+      });
+    });
+
+    // console.log('Total Result:', totalResult);
+    // console.log('Total Comparison:', totalComparison);
+    // console.log('Total Gap:', totalGap);
     return (
       <div className='ry_main-style1'>
         {this.props.feedback.map((data) => (
@@ -163,16 +192,7 @@ class Feedback extends Component {
                                 </div>
                               </div>
                               {data.data.map((feedback, index) => (
-                                <div
-                                  className='rb-table-content'
-                                  key={index}
-                                  style={{
-                                    borderTop:
-                                      feedback.subject === 'Total'
-                                        ? '1px solid rgb(0 0 0 / 9%)'
-                                        : 'none',
-                                  }}
-                                >
+                                <div className='rb-table-content' key={index}>
                                   <div className='rb-table-row'>
                                     <div className='rb-table-col '>
                                       <div
@@ -247,6 +267,57 @@ class Feedback extends Component {
                                   </div>
                                 </div>
                               ))}
+                              <div
+                                className='rb-table-content'
+                                style={{
+                                  borderTop: '1px solid rgb(0 0 0 / 9%)',
+                                }}
+                              >
+                                <div className='rb-table-row'>
+                                  <div className='rb-table-col '>
+                                    <div
+                                      className='rb-table-cell'
+                                      style={{ justifyContent: 'center', minWidth: '140px' }}
+                                    >
+                                      <div className='div-block-398'>
+                                        <div className='table-text'>
+                                          <div>Total</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className='rb-table-col '>
+                                    <div
+                                      className='rb-table-cell'
+                                      style={{ justifyContent: 'center' }}
+                                    >
+                                      <div className='table-text'>
+                                        <div>{totalResult.toFixed(1)}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className='rb-table-col '>
+                                    <div
+                                      className='rb-table-cell'
+                                      style={{ justifyContent: 'center' }}
+                                    >
+                                      <div className='table-text'>
+                                        <div>{totalComparison.toFixed(1)}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className='rb-table-col '>
+                                    <div
+                                      className='rb-table-cell'
+                                      style={{ justifyContent: 'center' }}
+                                    >
+                                      <div className='table-text text-green'>
+                                        <div>{totalGap === 0 ? '0' : totalGap.toFixed(1)}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -257,7 +328,7 @@ class Feedback extends Component {
                         <div className='card_dashboard-label'>Communication</div>
                       </div>
                       <div className='ry_barchart'>
-                        <VerticalChart data={data.communication} />
+                        <VerticalChart data={data.data[0].data} />
                       </div>
                     </div>
                   </div>

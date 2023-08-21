@@ -187,16 +187,16 @@ class Home extends Component {
                   <div className='card_dashboard_top mobile-100'>
                     <div className='card_dashboard_top-left'>
                       <div className='div-block-382'>
-                        <h1 className='card_data'>23</h1>
+                        <h1 className='card_data'>{this.props.employees.length}</h1>
                         <div className='ry_p-style1'>Members</div>
                       </div>
                     </div>
                     <div className='card_dashboard_top-left flex-vertical'>
-                      <h1 className='ry_h3-display1 weight-semibold'>$200</h1>
+                      <h1 className='ry_h3-display1 weight-semibold'>N/A</h1>
                       <div className='ry_p-style1'>Last Invoice</div>
                     </div>
                     <div className='card-dashboard_top-right'>
-                      <h1 className='ry_h3-display1 weight-semibold'>21 Oct, 2021</h1>
+                      <h1 className='ry_h3-display1 weight-semibold'>N/A</h1>
                       <div className='ry_p-style1'>Next Payment on</div>
                     </div>
                   </div>
