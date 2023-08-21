@@ -30,7 +30,7 @@ if (Meteor.isServer) {
         ];
 
         const membersRating = RatingCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
+
         return membersRating;
       } else if (data === 'Today') {
         const today = new Date();
@@ -68,7 +68,7 @@ if (Meteor.isServer) {
         ];
 
         const membersRating = RatingCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
+
         return membersRating;
       } else if (data === 'Weekly') {
         const today = new Date();
@@ -114,7 +114,7 @@ if (Meteor.isServer) {
         ];
 
         const membersRating = RatingCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
+
         return membersRating;
       }
     },

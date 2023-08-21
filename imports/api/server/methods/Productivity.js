@@ -24,14 +24,13 @@ if (Meteor.isServer) {
           },
           {
             $project: {
-              value: '$value',
               name: '$_id',
+              value: { $round: ['$value', 0] },
               _id: 0,
             },
           },
         ];
         const membersRating = ProductivityCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
         return membersRating;
       } else if (data === 'Weekly') {
         const today = new Date();
@@ -67,13 +66,13 @@ if (Meteor.isServer) {
           {
             $project: {
               name: '$_id',
-              value: '$value',
+              value: { $round: ['$value', 0] },
               _id: 0,
             },
           },
         ];
         const membersRating = ProductivityCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
+
         return membersRating;
       } else if (data === 'Monthly') {
         const today = new Date();
@@ -109,13 +108,12 @@ if (Meteor.isServer) {
           {
             $project: {
               name: '$_id',
-              value: '$value',
+              value: { $round: ['$value', 0] },
               _id: 0,
             },
           },
         ];
         const membersRating = ProductivityCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(membersRating);
         return membersRating;
       }
     },

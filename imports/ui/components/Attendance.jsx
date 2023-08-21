@@ -206,14 +206,6 @@ class Attendance extends Component {
                       />
                       <div>Export</div>
                     </div>
-                    <div className='ry_icon-btn-style1 light square w-inline-block'>
-                      <img
-                        src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg'
-                        loading='lazy'
-                        alt=''
-                        className='icon-btn_asset mr-0'
-                      />
-                    </div>
                   </div>
                 </div>
                 <div className='ry_bodycontainer'>

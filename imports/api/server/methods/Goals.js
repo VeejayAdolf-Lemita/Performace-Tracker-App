@@ -110,7 +110,7 @@ if (Meteor.isServer) {
             },
           },
         ];
-        console.log(data);
+
         // Perform the aggregation pipeline and convert the result to an array
         const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
         return topGoalsCursor;
@@ -178,7 +178,7 @@ if (Meteor.isServer) {
             },
           },
         ];
-        console.log(data);
+
         // Perform the aggregation pipeline and convert the result to an array
         const topGoalsCursor = await GoalsCollection.rawCollection().aggregate(pipeline).toArray();
         return topGoalsCursor;

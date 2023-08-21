@@ -26,6 +26,7 @@ class Rating extends Watcher {
       data.forEach((item) => {
         this.#dbrating.insert(item);
       });
+      this.activateWatcher();
     });
   }
 }

@@ -12,9 +12,18 @@ import Attendance from '../../api/classes/client/dashboard/Attendance';
 import Employees from '../../api/classes/client/review/Employees';
 
 const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
+function formatAMPM(date) {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours %= 12;
+  hours = hours || 12; // Convert 0 to 12
+  minutes = minutes < 10 ? `0${minutes}` : minutes;
+  return `${hours}:${minutes} ${ampm}`;
+}
 
-const now = new Date();
-const utcOffset = -now.getTimezoneOffset() / 60;
+const currentTime = new Date();
+const formattedTime = formatAMPM(currentTime);
 
 class Home extends Component {
   constructor(props) {
@@ -31,8 +40,6 @@ class Home extends Component {
     Rating.setWatcher(this, 'Home');
     Attendance.setWatcher(this, 'Home');
     Employees.setWatcher(this, 'Home');
-    this.handleProductivityChange = this.handleProductivityChange.bind(this);
-    this.handleRatingChange = this.handleRatingChange.bind(this);
   }
 
   componentDidMount() {
@@ -44,33 +51,20 @@ class Home extends Component {
     Employees.getEmployees();
   }
 
-  handleProductivityChange(event) {
-    this.setState({ productivityState: event.target.value });
-  }
-
-  handleProductivityFilter = () => {
-    Productivity.getProductivity(`${this.state.productivityState}`);
+  handleProductivityChange = (event) => {
+    Productivity.getProductivity(event.target.value);
   };
 
   handleGoalChange = (event) => {
-    this.setState({ goalState: event.target.value });
+    Goals.getGoals(event.target.value);
   };
 
-  handleGoalFilter = () => {
-    Goals.getGoals(`${this.state.goalState}`);
+  handleRatingChange = (event) => {
+    Rating.getRatings(event.target.value);
   };
 
-  handleRatingChange(event) {
-    this.setState({ ratingState: event.target.value });
-    Rating.getRatings(`${this.state.ratingState}`);
-  }
-
-  handleRatingFilter = () => {
-    Rating.getRatings(`${this.state.ratingState}`);
-  };
-
-  handleAttendanceFilter = () => {
-    Attendance.getActiveAttendance(`${this.state.attendance}`);
+  handleAttendanceFilter = (e) => {
+    Attendance.getActiveAttendance(e.target.value);
   };
   render() {
     const dashboardActive = this.props.attendance;
@@ -176,11 +170,8 @@ class Home extends Component {
                       </div>
                     </div>
                     <div className='card-dashboard_top-right'>
-                      <h1 className='ry_h3-display1 weight-semibold'>09:55 AM</h1>
-                      <div className='ry_p-style1'>
-                        {`UTC: ${utcOffset > 0 ? '+' : ''}${utcOffset}
-                        :00  Europe/Berlin `}
-                      </div>
+                      <h1 className='ry_h3-display1 weight-semibold'>{formattedTime}</h1>
+                      <div className='ry_p-style1'>{this.props.Client.profile.timezone}</div>
                     </div>
                   </div>
                   <div className='card_dashboard_top mobile-100'>
@@ -207,30 +198,6 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Todays' Activity</div>
-                        {/* <div>
-                          <select className='ry_selectfieldsmall w-select'>
-                            <option value='Today'>Today</option>
-                            <option value='Weekly'>Weekly</option>
-                            <option value='Monthly'>Monthly</option>
-                            <option value='Yearly'>Yearly</option>
-                          </select>
-                        </div> */}
-                        {/* <div>
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            width='24'
-                            height='24'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            stroke-width='2'
-                            stroke-linecap='round'
-                            stroke-linejoin='round'
-                            class='feather feather-filter'
-                          >
-                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                          </svg>
-                        </div> */}
                       </div>
                       <div className='ry_cardcontent-style1'>
                         {this.props.activity.map((data) => (
@@ -256,34 +223,15 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Productivity</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div>
                           <select
                             className='ry_selectfieldsmall w-select'
                             onChange={this.handleProductivityChange}
-                            value={this.state.productivityState}
                           >
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
                             <option value='Monthly'>Monthly</option>
                           </select>
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            width='24'
-                            height='24'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            strokeWidth='1'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            className='feather feather-filter'
-                            style={{
-                              cursor: 'pointer',
-                            }}
-                            onClick={this.handleProductivityFilter}
-                          >
-                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style2'>
@@ -316,34 +264,15 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Goals</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div>
                           <select
                             className='ry_selectfieldsmall w-select'
-                            value={this.state.goalState}
                             onChange={this.handleGoalChange}
                           >
                             <option value=''>All Goals</option>
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
                           </select>
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            width='24'
-                            height='24'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            strokeWidth='1'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            className='feather feather-filter'
-                            style={{
-                              cursor: 'pointer',
-                            }}
-                            onClick={this.handleGoalFilter}
-                          >
-                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style2'>
@@ -382,34 +311,15 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Attendance</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div>
                           <select
                             className='ry_selectfieldsmall w-select'
-                            value={this.state.attendance}
-                            onChange={(e) => this.setState({ attendance: e.target.value })}
+                            onChange={this.handleAttendanceFilter}
                           >
                             <option value>Today</option>
                             <option value='Yesterday'>Yesterday</option>
                             <option value='Weekly'>Weekly</option>
                           </select>
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            width='24'
-                            height='24'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            strokeWidth='1'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            className='feather feather-filter'
-                            style={{
-                              cursor: 'pointer',
-                            }}
-                            onClick={this.handleAttendanceFilter}
-                          >
-                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                          </svg>
                         </div>
                       </div>
                       <div className='ry_cardcontent-style1'>
@@ -430,7 +340,7 @@ class Home extends Component {
                           </div>
                           <div className='ry_cardcontent_rowcol _w-10'>
                             <p className='ry_p-style1 mb-0 text-darkblue'>{`${
-                              isNaN(lateArrivalPercentage) ? '0' : lateArrivalPercentage.toFixed(2)
+                              isNaN(lateArrivalPercentage) ? '0' : lateArrivalPercentage.toFixed(0)
                             }%`}</p>
                           </div>
                         </div>
@@ -443,7 +353,7 @@ class Home extends Component {
                             <p className='ry_p-style1 mb-0 text-darkblue'>{`${
                               isNaN(earlyLeavingPercentage)
                                 ? '0'
-                                : earlyLeavingPercentage.toFixed(2)
+                                : earlyLeavingPercentage.toFixed(0)
                             }%`}</p>
                           </div>
                         </div>
@@ -455,7 +365,7 @@ class Home extends Component {
                           </div>
                           <div className='ry_cardcontent_rowcol _w-10'>
                             <p className='ry_p-style1 mb-0 text-darkblue'>{`${
-                              isNaN(absentPercentage) ? '0' : absentPercentage.toFixed(2)
+                              isNaN(absentPercentage) ? '0' : absentPercentage.toFixed(0)
                             }%`}</p>
                           </div>
                         </div>
@@ -466,34 +376,15 @@ class Home extends Component {
                     <div className='w-form'>
                       <div className='ry_cardtop'>
                         <div className='card_dashboard-label'>Top Members</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div>
                           <select
                             className='ry_selectfieldsmall w-select'
-                            value={this.state.ratingState}
                             onChange={this.handleRatingChange}
                           >
                             <option value='Total'>Rating</option>
                             <option value='Today'>Today</option>
                             <option value='Weekly'>Weekly</option>
                           </select>
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            width='24'
-                            height='24'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            strokeWidth='1'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            className='feather feather-filter'
-                            style={{
-                              cursor: 'pointer',
-                            }}
-                            onClick={this.handleRatingFilter}
-                          >
-                            <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                          </svg>
                         </div>
                       </div>
                       <div className='ry_barchart'>

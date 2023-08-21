@@ -50,7 +50,7 @@ class Members extends Component {
   };
 
   handleSubmit = () => {
-    const { name, position, productivity, department, salary, memberFilter } = this.state;
+    const { name, position, productivity, department, salary } = this.state;
 
     const newMember = {
       name,

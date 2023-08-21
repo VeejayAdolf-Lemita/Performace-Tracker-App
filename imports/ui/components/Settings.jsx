@@ -173,6 +173,10 @@ class SettingsPassword extends Component {
                                           type='text'
                                           className='ry_text-field-style1 w-input'
                                           placeholder='(UTC+00:00) UTC'
+                                          value={this.state.timezone}
+                                          onChange={(e) =>
+                                            this.setState({ timezone: e.target.value })
+                                          }
                                           required
                                         />
                                       </div>

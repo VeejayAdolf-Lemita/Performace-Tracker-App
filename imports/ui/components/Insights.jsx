@@ -27,32 +27,20 @@ class Insights extends Component {
     Insight.getActiveMemberYesterday();
     Insight.getActiveMemberWeekly();
     Goals.getGoals();
-    Productivity.getProductivity(`${this.state.productivityState}`);
-    Rating.getRatings(`${this.state.ratingState}`);
+    Productivity.getProductivity(this.state.productivityState);
+    Rating.getRatings(this.state.ratingState);
   }
 
   handleGoalChange = (event) => {
-    this.setState({ goalState: event.target.value });
-  };
-
-  handleGoalFilter = () => {
-    Goals.getGoals(`${this.state.goalState}`);
+    Goals.getGoals(event.target.value);
   };
 
   handleProductivityChange = (event) => {
-    this.setState({ productivityState: event.target.value });
-  };
-
-  handleProductivityFilter = () => {
-    Productivity.getProductivity(`${this.state.productivityState}`);
+    Productivity.getProductivity(event.target.value);
   };
 
   handleRatingChange = (event) => {
-    this.setState({ ratingState: event.target.value });
-  };
-
-  handleRatingFilter = () => {
-    Rating.getRatings(`${this.state.ratingState}`);
+    Rating.getRatings(event.target.value);
   };
 
   render() {
@@ -173,9 +161,7 @@ class Insights extends Component {
                   <div className='card_dashboard_top-left justify-spacebetween'>
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Today</div>
-                      <div className='ry_p-style1'>
-                        <span className='span-red'>-75%</span> yesterday
-                      </div>
+                      <div className='ry_p-style1'></div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>{`${formattedTimeToday}h`}</h1>
                   </div>
@@ -197,9 +183,7 @@ class Insights extends Component {
                   <div className='card_dashboard_top-left justify-spacebetween'>
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Yesterday</div>
-                      <div className='ry_p-style1'>
-                        <span className='span-green'>10%</span> yesterday
-                      </div>
+                      <div className='ry_p-style1'></div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>{`${formattedTimeYesterday}h`}</h1>
                   </div>
@@ -247,34 +231,15 @@ class Insights extends Component {
                       <form>
                         <div className='ry_cardtop'>
                           <div className='card_dashboard-label'>Goals</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div>
                             <select
                               className='ry_selectfieldsmall w-select'
-                              value={this.state.goalState}
                               onChange={this.handleGoalChange}
                             >
                               <option value=''>All Goals</option>
                               <option value='Today'>Today</option>
                               <option value='Weekly'>Weekly</option>
                             </select>
-                            <svg
-                              xmlns='http://www.w3.org/2000/svg'
-                              width='24'
-                              height='24'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              strokeWidth='1'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              className='feather feather-filter'
-                              style={{
-                                cursor: 'pointer',
-                              }}
-                              onClick={this.handleGoalFilter}
-                            >
-                              <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                            </svg>
                           </div>
                         </div>
                         <div className='ry_cardcontent-style2'>
@@ -313,34 +278,15 @@ class Insights extends Component {
                       <form>
                         <div className='ry_cardtop'>
                           <div className='card_dashboard-label'>Productivity</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div>
                             <select
                               className='ry_selectfieldsmall w-select'
                               onChange={this.handleProductivityChange}
-                              value={this.state.productivityState}
                             >
                               <option value='Today'>Today</option>
                               <option value='Weekly'>Weekly</option>
                               <option value='Monthly'>Monthly</option>
                             </select>
-                            <svg
-                              xmlns='http://www.w3.org/2000/svg'
-                              width='24'
-                              height='24'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              strokeWidth='1'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              className='feather feather-filter'
-                              style={{
-                                cursor: 'pointer',
-                              }}
-                              onClick={this.handleProductivityFilter}
-                            >
-                              <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                            </svg>
                           </div>
                         </div>
                         <div className='ry_cardcontent-style2'>
@@ -383,34 +329,15 @@ class Insights extends Component {
                       >
                         <div className='ry_cardtop'>
                           <div className='card_dashboard-label'>Top Members</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div>
                             <select
                               className='ry_selectfieldsmall w-select'
-                              value={this.state.ratingState}
                               onChange={this.handleRatingChange}
                             >
                               <option value='Total'>Rating</option>
                               <option value='Today'>Today</option>
                               <option value='Weekly'>Weekly</option>
                             </select>
-                            <svg
-                              xmlns='http://www.w3.org/2000/svg'
-                              width='24'
-                              height='24'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              strokeWidth='1'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              className='feather feather-filter'
-                              style={{
-                                cursor: 'pointer',
-                              }}
-                              onClick={this.handleRatingFilter}
-                            >
-                              <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
-                            </svg>
                           </div>
                         </div>
                         <div className='ry_barchart'>

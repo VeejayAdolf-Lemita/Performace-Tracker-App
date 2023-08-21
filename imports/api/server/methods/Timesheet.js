@@ -100,7 +100,7 @@ if (Meteor.isServer) {
         ];
 
         const collection = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(collection);
+
         return collection;
       } else {
         const pipeline = [
@@ -157,7 +157,7 @@ if (Meteor.isServer) {
         ];
 
         const collection = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
-        console.log(collection);
+
         return collection;
       }
     },

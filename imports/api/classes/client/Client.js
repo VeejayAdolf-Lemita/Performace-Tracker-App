@@ -17,7 +17,7 @@ class Client extends Watcher {
         console.error('Password change failed:', error.message);
       } else {
         // Password change succeeded
-        console.log('Password changed successfully');
+        alert('Password changed successfully');
       }
     });
   }
