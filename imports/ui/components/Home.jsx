@@ -98,6 +98,7 @@ class Home extends Component {
   };
   render() {
     const dashboardActive = this.props.attendance;
+    console.log(this.props.attendance);
 
     // Find the count of "Absent" status
     const absentStatus = dashboardActive.find((item) => item.status === 'Absent');

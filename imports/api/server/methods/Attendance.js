@@ -1,5 +1,6 @@
 import { AttendanceCollection, EmployeesCollection } from '../../db';
 import { GetAttendance, GetActive, GetFilteredAttendance } from '../../common';
+import moment from 'moment';
 
 if (Meteor.isServer) {
   Meteor.methods({
@@ -74,14 +75,12 @@ if (Meteor.isServer) {
 
     [GetActive]: function (data) {
       if (data === 'Today') {
-        const today = new Date();
-        const formattedMonth = (today.getMonth() + 1).toString().padStart(2, '0');
-        const formattedDay = today.getDate().toString().padStart(2, '0');
-        const formattedToday = `${formattedMonth}/${formattedDay}/${today.getFullYear()}`;
+        const currentDateTime = moment().startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const endOfDay = moment().endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
         const pipeline = [
           {
             $match: {
-              date: formattedToday,
+              date: { $gte: new Date(currentDateTime), $lte: new Date(endOfDay) },
             },
           },
           {
@@ -93,10 +92,10 @@ if (Meteor.isServer) {
           },
           {
             $addFields: {
-              earlyLeaving: {
-                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
-              },
-              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+              timeInHours: { $divide: ['$timeIn', 3600] },
+              timeOutHours: { $divide: ['$timeOut', 3600] },
+              earlyLeaving: { $cond: [{ $lt: ['$timeOutHours', 6] }, 1, 0] },
+              lateArrival: { $cond: [{ $gt: ['$timeInHours', 20] }, 1, 0] },
             },
           },
           {
@@ -121,27 +120,12 @@ if (Meteor.isServer) {
         const dashboardActive = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
         return dashboardActive;
       } else if (data === 'Weekly') {
-        const today = new Date();
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
-
-        const formattedStartOfWeek = `${(startOfWeek.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}/${startOfWeek
-          .getDate()
-          .toString()
-          .padStart(2, '0')}/${startOfWeek.getFullYear()}`;
-        const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today
-          .getDate()
-          .toString()
-          .padStart(2, '0')}/${today.getFullYear()}`;
+        const currentWeekStart = moment().startOf('week').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const currentWeekEnd = moment().endOf('week').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
         const pipeline = [
           {
             $match: {
-              date: {
-                $gte: formattedStartOfWeek,
-                $lte: formattedToday,
-              },
+              date: { $gte: new Date(currentWeekStart), $lte: new Date(currentWeekEnd) },
             },
           },
           {
@@ -153,10 +137,10 @@ if (Meteor.isServer) {
           },
           {
             $addFields: {
-              earlyLeaving: {
-                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
-              },
-              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+              timeInHours: { $divide: ['$timeIn', 3600] },
+              timeOutHours: { $divide: ['$timeOut', 3600] },
+              earlyLeaving: { $cond: [{ $lt: ['$timeOutHours', 6] }, 1, 0] },
+              lateArrival: { $cond: [{ $gt: ['$timeInHours', 20] }, 1, 0] },
             },
           },
           {
@@ -181,17 +165,18 @@ if (Meteor.isServer) {
         const dashboardActive = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
         return dashboardActive;
       } else if (data === 'Yesterday') {
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-
-        const formattedMonth = (yesterday.getMonth() + 1).toString().padStart(2, '0');
-        const formattedDay = yesterday.getDate().toString().padStart(2, '0');
-        const formattedYesterday = `${formattedMonth}/${formattedDay}/${yesterday.getFullYear()}`;
+        const yesterdayStart = moment()
+          .subtract(1, 'day')
+          .startOf('day')
+          .format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+        const yesterdayEnd = moment()
+          .subtract(1, 'day')
+          .endOf('day')
+          .format('YYYY-MM-DDTHH:mm:ss.SSSZ');
         const pipeline = [
           {
             $match: {
-              date: formattedYesterday,
+              date: { $gte: new Date(yesterdayStart), $lte: new Date(yesterdayEnd) },
             },
           },
           {
@@ -203,10 +188,10 @@ if (Meteor.isServer) {
           },
           {
             $addFields: {
-              earlyLeaving: {
-                $cond: [{ $lt: ['$timeOut', '06:00:00'] }, 1, 0],
-              },
-              lateArrival: { $cond: [{ $gt: ['$timeIn', '20:00:00'] }, 1, 0] },
+              timeInHours: { $divide: ['$timeIn', 3600] },
+              timeOutHours: { $divide: ['$timeOut', 3600] },
+              earlyLeaving: { $cond: [{ $lt: ['$timeOutHours', 6] }, 1, 0] },
+              lateArrival: { $cond: [{ $gt: ['$timeInHours', 20] }, 1, 0] },
             },
           },
           {
