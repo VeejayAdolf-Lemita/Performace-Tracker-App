@@ -332,7 +332,18 @@ class Timesheet extends Component {
                             </div>
                           ))}
                         </div>
-                        <button onClick={this.getTimesheet}>Load Data</button>
+                        <div
+                          className='rb-table-content'
+                          style={{ display: 'flex', justifyContent: 'center' }}
+                        >
+                          <div
+                            className='ry_icon-btn-style1 w-inline-block'
+                            style={{ cursor: 'pointer' }}
+                            onClick={this.getTimesheet}
+                          >
+                            Load Data
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
