@@ -59,6 +59,8 @@ class Members extends Component {
       employmentStatus: 'Active',
       productivity,
       department,
+      image:
+        'https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647ef7a875a3469fe6149589_nav_02.svg',
     };
 
     Employees.addMember(newMember);

@@ -2,7 +2,7 @@ import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
 import { GetActiveMember, GetActiveMemberYesterday, GetActiveMemberWeekly } from '../../../common';
-
+import moment from 'moment';
 class Insights extends Watcher {
   #activemembertoday = null;
   #dbactivemembertoday = null;
@@ -30,6 +30,8 @@ class Insights extends Watcher {
   }
 
   getActiveMember() {
+    const currentDate = moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    console.log(currentDate);
     this.Parent.callFunc(GetActiveMember)
       .then((data) => {
         this.#dbactivemembertoday.remove({});

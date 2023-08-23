@@ -377,6 +377,7 @@ class Review extends Component {
                     <div className='form-control'>
                       <textarea
                         maxLength={5000}
+                        value={this.state.replyMessage}
                         className='ry_text-area-style1 w-input'
                         onChange={this.handleReplyMessage}
                       />

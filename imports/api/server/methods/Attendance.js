@@ -68,7 +68,6 @@ if (Meteor.isServer) {
             retval.data = res.map((d) => ({ ...d, _id: d._id }));
             retval.lastbasis = res[res.length - 1].index1;
           }
-          console.log(retval);
           return retval;
         });
     },

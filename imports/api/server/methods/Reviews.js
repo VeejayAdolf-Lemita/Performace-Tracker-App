@@ -15,7 +15,8 @@ if (Meteor.isServer) {
     [GetReviews]: function (data) {
       return ReviewCollection.find({ share: data })
         .fetch()
-        .map((data) => data);
+        .map((data) => data)
+        .sort((a, b) => b.timestamp - a.timestamp); // Assuming you have a 'timestamp' property in your review objects
     },
 
     [GetUserReview]: function (data) {

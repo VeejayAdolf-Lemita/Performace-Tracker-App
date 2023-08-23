@@ -7,17 +7,18 @@ import RedisVent from '../RedisVent';
 if (Meteor.isServer) {
   Meteor.methods({
     [GetBonuses]: function (data) {
-      if (!data || data === '') {
-        const test = BonusesCollection.find({})
-          .fetch()
-          .map((data) => data);
-        return test;
-      } else {
-        const test = BonusesCollection.find({ status: data })
-          .fetch()
-          .map((data) => data);
-        return test;
+      let bonusesQuery = {};
+
+      if (data && data !== '') {
+        bonusesQuery.status = data;
       }
+
+      const bonuses = BonusesCollection.find(bonusesQuery)
+        .fetch()
+        .map((data) => data)
+        .sort((a, b) => b.timestamp - a.timestamp); // Assuming you have a 'timestamp' property in your bonus objects
+
+      return bonuses;
     },
     [AddBonus]: function (data) {
       try {

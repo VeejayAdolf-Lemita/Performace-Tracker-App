@@ -1,26 +1,24 @@
 import { AttendanceCollection } from '../../db';
 import { GetActiveMember, GetActiveMemberYesterday, GetActiveMemberWeekly } from '../../common';
+import moment from 'moment';
 
 if (Meteor.isServer) {
   Meteor.methods({
     [GetActiveMember]: function () {
-      const today = new Date();
-      const formattedMonth = (today.getMonth() + 1).toString().padStart(2, '0');
-      const formattedDay = today.getDate().toString().padStart(2, '0');
-      const formattedToday = `${formattedMonth}/${formattedDay}/${today.getFullYear()}`;
-
+      const currentDateTime = moment().startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      const endOfDay = moment().endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       const pipeline = [
         {
           $match: {
             status: 'Present',
-            date: formattedToday,
+            date: { $gte: new Date(currentDateTime), $lte: new Date(endOfDay) },
           },
         },
         {
           $project: {
             _id: 1,
             employeeName: 1,
-            activeTime: 1,
+            activeTime: { $subtract: ['$timeOut', '$timeIn'] },
           },
         },
       ];
@@ -29,26 +27,27 @@ if (Meteor.isServer) {
       return activeMembers;
     },
     [GetActiveMemberYesterday]: function () {
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-
-      const formattedMonth = (yesterday.getMonth() + 1).toString().padStart(2, '0');
-      const formattedDay = yesterday.getDate().toString().padStart(2, '0');
-      const formattedYesterday = `${formattedMonth}/${formattedDay}/${yesterday.getFullYear()}`;
+      const yesterdayStart = moment()
+        .subtract(1, 'day')
+        .startOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      const yesterdayEnd = moment()
+        .subtract(1, 'day')
+        .endOf('day')
+        .format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
       const pipeline = [
         {
           $match: {
             status: 'Present',
-            date: formattedYesterday,
+            date: { $gte: new Date(yesterdayStart), $lte: new Date(yesterdayEnd) },
           },
         },
         {
           $project: {
             _id: 0,
             employeeName: 1,
-            activeTime: 1,
+            activeTime: { $subtract: ['$timeOut', '$timeIn'] },
           },
         },
       ];
@@ -58,36 +57,19 @@ if (Meteor.isServer) {
       return activeMembers;
     },
     [GetActiveMemberWeekly]: function () {
-      const today = new Date();
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-
-      const formattedStartOfWeek = `${(startOfWeek.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}/${startOfWeek
-        .getDate()
-        .toString()
-        .padStart(2, '0')}/${startOfWeek.getFullYear()}`;
-      const formattedToday = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today
-        .getDate()
-        .toString()
-        .padStart(2, '0')}/${today.getFullYear()}`;
-
-      console.log(formattedStartOfWeek);
+      const currentWeekStart = moment().startOf('week').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      const currentWeekEnd = moment().endOf('week').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       const pipeline = [
         {
           $match: {
             status: 'Present',
-            date: {
-              $gte: formattedStartOfWeek,
-              $lte: formattedToday,
-            },
+            date: { $gte: new Date(currentWeekStart), $lte: new Date(currentWeekEnd) },
           },
         },
         {
           $group: {
             _id: '$employeeName',
-            totalActiveTime: { $push: '$activeTime' },
+            totalActiveTime: { $push: { $subtract: ['$timeOut', '$timeIn'] } },
           },
         },
         {

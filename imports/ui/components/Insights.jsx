@@ -7,6 +7,7 @@ import Goals from '../../api/classes/client/goals/Goals';
 import Insight from '../../api/classes/client/insights/Insights';
 import Productivity from '../../api/classes/client/dashboard/Productivity';
 import Rating from '../../api/classes/client/dashboard/Rating';
+import moment from 'moment';
 
 class Insights extends Component {
   constructor(props) {
@@ -23,9 +24,9 @@ class Insights extends Component {
   }
 
   componentDidMount() {
-    // Insight.getActiveMember();
-    // Insight.getActiveMemberYesterday();
-    // Insight.getActiveMemberWeekly();
+    Insight.getActiveMember();
+    Insight.getActiveMemberYesterday();
+    Insight.getActiveMemberWeekly();
     Goals.getGoals();
     Productivity.getProductivity(this.state.productivityState);
     Rating.getRatings(this.state.ratingState);
@@ -45,6 +46,57 @@ class Insights extends Component {
 
   render() {
     const { insights, insightsYesterday, insightsWeekly } = this.props;
+    console.log(insights);
+    console.log(insightsYesterday);
+    console.log(insightsWeekly);
+    let totalActiveTimeInSeconds = 0;
+
+    for (const insight of insights) {
+      totalActiveTimeInSeconds += insight.activeTime;
+    }
+
+    const hours = Math.floor(totalActiveTimeInSeconds / 3600);
+    const minutes = Math.floor((totalActiveTimeInSeconds % 3600) / 60);
+    const seconds = totalActiveTimeInSeconds % 60;
+
+    const formattedTotalActiveTime = `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    let totalActiveTimeInSecondsYesterday = 0;
+
+    for (const insight of insightsYesterday) {
+      totalActiveTimeInSecondsYesterday += insight.activeTime;
+    }
+
+    const hoursYesterday = Math.floor(totalActiveTimeInSecondsYesterday / 3600);
+    const minutesYesterday = Math.floor((totalActiveTimeInSecondsYesterday % 3600) / 60);
+    const secondsYesterday = totalActiveTimeInSecondsYesterday % 60;
+
+    const formattedTotalActiveTimeYesterday = `${hoursYesterday
+      .toString()
+      .padStart(2, '0')}:${minutesYesterday.toString().padStart(2, '0')}:${secondsYesterday
+      .toString()
+      .padStart(2, '0')}`;
+
+    let totalActiveTimeAllEmployees = 0;
+    for (const employeeData of insightsWeekly) {
+      const totalActiveTimeForEmployee = employeeData.totalActiveTime.reduce(
+        (acc, time) => acc + time,
+        0,
+      );
+      totalActiveTimeAllEmployees += totalActiveTimeForEmployee;
+    }
+
+    const totalHoursAllEmployees = Math.floor(totalActiveTimeAllEmployees / 3600);
+    const totalMinutesAllEmployees = Math.floor((totalActiveTimeAllEmployees % 3600) / 60);
+    const totalSecondsAllEmployees = totalActiveTimeAllEmployees % 60;
+
+    const formattedTotalActiveTimeAllEmployees = `${totalHoursAllEmployees
+      .toString()
+      .padStart(2, '0')}:${totalMinutesAllEmployees
+      .toString()
+      .padStart(2, '0')}:${totalSecondsAllEmployees.toString().padStart(2, '0')}`;
 
     const COLORS = ['#00b8b0', '#ccc', '#f4404e'];
     const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
@@ -94,7 +146,7 @@ class Insights extends Component {
                       <div className='card_dashboard-label'>Today</div>
                       <div className='ry_p-style1'></div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{`tesT`}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>{formattedTotalActiveTime}</h1>
                   </div>
                   <div className='card-dashboard_top-right horizontal'>
                     <div className='ry_p-style1'>
@@ -116,7 +168,9 @@ class Insights extends Component {
                       <div className='card_dashboard-label'>Yesterday</div>
                       <div className='ry_p-style1'></div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{`Test`}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {formattedTotalActiveTimeYesterday}
+                    </h1>
                   </div>
                   <div className='card-dashboard_top-right horizontal'>
                     <div className='ry_p-style1'>
@@ -137,7 +191,9 @@ class Insights extends Component {
                       <div className='card_dashboard-label'>This Week</div>
                       <div className='ry_p-style1'>Total Active Time</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{`Test`}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {formattedTotalActiveTimeAllEmployees}
+                    </h1>
                   </div>
                   <div className='card-dashboard_top-right horizontal'>
                     <div className='ry_p-style1'>
