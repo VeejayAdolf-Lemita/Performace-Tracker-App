@@ -1,15 +1,16 @@
 import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
-import { GetAttendance } from '../../../common';
+import { GetAttendance, GetFilteredAttendance } from '../../../common';
 
 class Attendace extends Watcher {
   #attendance = null;
   #dbattendance = null;
+  #lastbasis = null;
   constructor(parent) {
     super(parent);
-    RedisVent.Attendance.prepareCollection('timesheet');
-    this.#dbattendance = RedisVent.Attendance.getCollection('timesheet');
+    RedisVent.Attendance.prepareCollection('attendance');
+    this.#dbattendance = RedisVent.Attendance.getCollection('attendance');
   }
 
   get Data() {
@@ -20,14 +21,32 @@ class Attendace extends Watcher {
     return this.#attendance;
   }
 
-  getAttendance(gte, lte) {
-    this.Parent.callFunc(GetAttendance, gte, lte).then((data) => {
+  getAttendance() {
+    this.Parent.callFunc(GetAttendance, this.#lastbasis).then((data) => {
+      console.log(data);
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
+          this.#dbattendance.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
+      this.activateWatcher();
+    });
+  }
+
+  getFilteredAttendance(datas) {
+    console.log(datas);
+    this.Parent.callFunc(GetFilteredAttendance, datas).then((data) => {
       this.#dbattendance.remove({});
-      data.forEach((item) => {
-        // Add a unique _id field to each item before inserting
-        item._id = new Meteor.Collection.ObjectID().toHexString();
-        this.#dbattendance.insert(item);
-      });
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
+          this.#dbattendance.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
+      this.activateWatcher();
     });
   }
 }

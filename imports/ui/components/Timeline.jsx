@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Timelines from '../../api/classes/client/timeline/Timeline';
+import moment from 'moment';
 
 class Timeline extends Component {
   constructor(props) {
@@ -8,53 +9,38 @@ class Timeline extends Component {
     this.state = {
       rawDateFilter: '',
       rawDateFilter2: '',
+      gte: '',
+      lte: '',
     };
     Timelines.setWatcher(this, 'Timeline');
   }
 
-  componentDidMount() {
-    Timelines.getTimeline();
-  }
-
-  handleDateChange = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-    }
+  handleDateChange = async (event) => {
+    this.setState({ rawDateFilter: event.target.value });
+    const gte = moment(event.target.value, 'YYYY-MM-DD').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    await this.setState({ gte: gte });
   };
 
-  handleDateChange2 = (event) => {
-    const inputValue2 = event.target.value;
-    const [year, month, day] = inputValue2.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue2 }); // Update both states
-    }
+  handleDateChange2 = async (event) => {
+    this.setState({ rawDateFilter2: event.target.value });
+    const lte = moment(event.target.value, 'YYYY-MM-DD').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    await this.setState({ lte: lte });
   };
 
   handleTimelinetFilter = () => {
-    Timelines.getTimeline(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
+    Timelines.getTimeline(this.state.gte, this.state.lte);
   };
 
   handleExport = () => {
     const timelineData = this.props.timeline;
-
-    // Convert the data to a suitable format (e.g., CSV, JSON, Excel, etc.)
-    // For demonstration purposes, we'll use CSV format
     let csvContent = 'Name,Project,Mon,Tue,Wed,Thur,Fri,Total\n';
     timelineData.forEach((data) => {
       const row = `${data.Name},${data.Department},${data.Mon},${data.Tue},${data.Wed},${data.Thu},${data.Fri},${data.Total}\n`;
       csvContent += row;
     });
 
-    // Create a Blob containing the CSV data
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
-    // Create a download link and trigger the download
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = 'timeline.csv';
@@ -64,45 +50,60 @@ class Timeline extends Component {
     document.body.removeChild(downloadLink);
   };
 
+  calculateTotalOfficeTime(data) {
+    const officeTimeValues = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+    let totalOfficeTime = 0;
+
+    for (const day of officeTimeValues) {
+      if (data[day] !== '-') {
+        totalOfficeTime += data[day];
+      }
+    }
+
+    return totalOfficeTime;
+  }
+
+  calculateAverage(dataArray, field) {
+    const validData = dataArray.filter((data) => data[field] !== '-');
+    const total = validData.reduce((sum, data) => sum + data[field], 0);
+    return validData.length > 0 ? total / validData.length : 0;
+  }
+
+  calculateAverageActivity(dataArray) {
+    const validData = dataArray.filter((data) => data.activity !== '-');
+    const totalActivityTime = validData.reduce((sum, data) => sum + data.activity, 0);
+    const averageInSeconds = validData.length > 0 ? totalActivityTime / validData.length : 0;
+
+    // Convert average activity time in seconds to HH:mm:ss format
+    const hours = Math.floor(averageInSeconds / 3600);
+    const minutes = Math.floor((averageInSeconds % 3600) / 60);
+    const seconds = Math.floor(averageInSeconds % 60);
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
-    const timelineData = this.props.timeline;
-    let totalOfficeTimeMinutes = 0;
+    console.log(this.props.timeline);
+    let totalOfficeTimeSum = 0;
+    let totalValidDays = 0;
 
-    timelineData.forEach((data) => {
-      const officeTimeParts = data.OfficeTimeAverage.split(':');
-      const officeTimeMinutes = parseInt(officeTimeParts[0]) * 60 + parseInt(officeTimeParts[1]);
-      totalOfficeTimeMinutes += officeTimeMinutes;
+    this.props.timeline.forEach((data) => {
+      const totalOfficeTime = this.calculateTotalOfficeTime(data);
+      totalOfficeTimeSum += totalOfficeTime;
+
+      // Count only if there is at least one valid day
+      if (totalOfficeTime > 0) {
+        totalValidDays++;
+      }
     });
 
-    const averageOfficeTimeMinutes = totalOfficeTimeMinutes / timelineData.length;
-    const averageOfficeTimeHours = Math.floor(averageOfficeTimeMinutes / 60);
-    const averageOfficeTimeMinutesRemainder = averageOfficeTimeMinutes % 60;
-    const averageOfficeTimeString = `${averageOfficeTimeHours}:${averageOfficeTimeMinutesRemainder}`;
-
-    let totalActiveTimeMinutes = 0;
-    let numDataPoints = 0;
-
-    timelineData.forEach((data) => {
-      const activeTimeParts = data.ActiveTimeAverage.split(':');
-      const activeTimeMinutes = parseInt(activeTimeParts[0]) * 60 + parseInt(activeTimeParts[1]);
-      totalActiveTimeMinutes += activeTimeMinutes;
-      numDataPoints++;
-    });
-
-    const averageActiveTimeMinutes = totalActiveTimeMinutes / numDataPoints;
-    const averageActiveTimeHours = Math.floor(averageActiveTimeMinutes / 60);
-    const averageActiveTimeMinutesRemainder = averageActiveTimeMinutes % 60;
-    const averageActiveTimeString = `${averageActiveTimeHours}:${averageActiveTimeMinutesRemainder}`;
-
-    let totalProductivity = 0;
-
-    timelineData.forEach((data) => {
-      totalProductivity += data.Productivity;
-    });
-
-    const averageProductivity = totalProductivity / timelineData.length;
-
+    const averageOfficeTime = totalValidDays > 0 ? totalOfficeTimeSum / totalValidDays : 0;
+    const averageProductivity = this.calculateAverage(this.props.timeline, 'productivity');
+    const averageActivityTime = this.calculateAverageActivity(this.props.timeline);
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -125,7 +126,11 @@ class Timeline extends Component {
                       <div className='card_dashboard-label'>Office Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTimeString} h</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {isNaN(averageOfficeTime)
+                        ? 'N/A'
+                        : moment.utc(averageOfficeTime * 1000).format('HH:mm:ss')}
+                    </h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -134,7 +139,7 @@ class Timeline extends Component {
                       <div className='card_dashboard-label'>Active Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTimeString} h</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageActivityTime}</h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -142,7 +147,10 @@ class Timeline extends Component {
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity} %</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {' '}
+                      {isNaN(averageProductivity) ? 'N/A' : `${averageProductivity.toFixed(0)} %`}
+                    </h1>
                   </div>
                 </div>
               </div>
@@ -279,42 +287,66 @@ class Timeline extends Component {
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Mon}</div>
+                                    <div>
+                                      {data.Mon !== '-'
+                                        ? moment.utc(data.Mon * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Tue}</div>
+                                    <div>
+                                      {data.Tue !== '-'
+                                        ? moment.utc(data.Tue * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Wed}</div>
+                                    <div>
+                                      {data.Wed !== '-'
+                                        ? moment.utc(data.Wed * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Thu}</div>
+                                    <div>
+                                      {data.Thu !== '-'
+                                        ? moment.utc(data.Thu * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Fri}</div>
+                                    <div>
+                                      {data.Fri !== '-'
+                                        ? moment.utc(data.Fri * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Total}</div>
+                                    <div>
+                                      {data.Total !== '-'
+                                        ? moment.utc(data.Total * 1000).format('HH:mm:ss')
+                                        : '-'}
+                                    </div>
                                   </div>
                                 </div>
                               </div>

@@ -3,163 +3,40 @@ import { GetTimesheet } from '../../common';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetTimesheet]: function (data) {
-      if (!data || data === '') {
-        const pipeline = [
-          {
-            $project: {
-              Name: '$employeeName',
-              Team: '$department',
-              Date: '$date',
-              image: '$image',
-              OfficeTime: {
-                $concat: ['$timeIn', ' - ', '$timeOut'],
-              },
-              Productivity: '$productivity',
-              Earnings: '$salary',
-              ActiveTime: '$activeTime',
-            },
-          },
-          {
-            $addFields: {
-              BreakTime: {
-                $subtract: [
-                  {
-                    $convert: {
-                      input: '$breakTimeEnd',
-                      to: 'date',
-                    },
-                  },
-                  {
-                    $convert: {
-                      input: '$breakTimeStart',
-                      to: 'date',
-                    },
-                  },
-                ],
-              },
-              EffectiveOfficeTime: {
-                $let: {
-                  vars: {
-                    breakDuration: {
-                      $divide: [
-                        {
-                          $subtract: [
-                            {
-                              $convert: {
-                                input: '$breakTimeEnd',
-                                to: 'date',
-                              },
-                            },
-                            {
-                              $convert: {
-                                input: '$breakTimeStart',
-                                to: 'date',
-                              },
-                            },
-                          ],
-                        },
-                        60000, // Convert milliseconds to minutes
-                      ],
-                    },
-                  },
-                  in: {
-                    $let: {
-                      vars: {
-                        officeDuration: {
-                          $divide: [
-                            {
-                              $subtract: [
-                                {
-                                  $convert: {
-                                    input: '$timeOut',
-                                    to: 'date',
-                                  },
-                                },
-                                {
-                                  $convert: {
-                                    input: '$timeIn',
-                                    to: 'date',
-                                  },
-                                },
-                              ],
-                            },
-                            60000, // Convert milliseconds to minutes
-                          ],
-                        },
-                      },
-                      in: {
-                        $subtract: ['$officeDuration', '$$breakDuration'],
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ];
-
-        const collection = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
-
-        return collection;
-      } else {
-        const pipeline = [
-          {
-            $match: { date: data },
-          },
-          {
-            $project: {
-              Name: '$employeeName',
-              Team: '$department',
-              Date: '$date',
-              image: '$image',
-              OfficeTime: {
-                $concat: ['$timeIn', ' - ', '$timeOut'],
-              },
-              Productivity: '$productivity',
-              Earnings: '$salary',
-              ActiveTime: '$activeTime',
-            },
-          },
-          {
-            $addFields: {
-              OfficeTime: {
-                $subtract: [
-                  '$timeOut',
-                  {
-                    $add: [
-                      '$timeIn',
-                      {
-                        $divide: [
-                          {
-                            $multiply: [
-                              {
-                                $convert: {
-                                  input: '$breakTime',
-                                  to: 'number',
-                                },
-                              },
-                              60,
-                            ],
-                          },
-                          1,
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-              OfficeTime: {
-                $ifNull: ['$OfficeTime', 0],
-              },
-            },
-          },
-        ];
-
-        const collection = AttendanceCollection.rawCollection().aggregate(pipeline).toArray();
-
-        return collection;
-      }
+    [GetTimesheet]: function (lastbasis) {
+      const pipeline = [];
+      const match = { index1: { $regex: 'Company' } };
+      const project = {
+        _id: 1,
+        index1: 1,
+        employeeName: 1,
+        date: 1,
+        timeIn: 1,
+        timeOut: 1,
+        salary: 1,
+        productivity: 1,
+        department: 1,
+        image: 1,
+      };
+      const addFields = {
+        officeTime: { $subtract: ['$timeOut', '$timeIn'] },
+      };
+      if (lastbasis) match.index1.$lt = lastbasis;
+      pipeline.push({ $match: match });
+      pipeline.push({ $project: project });
+      pipeline.push({ $addFields: addFields });
+      pipeline.push({ $limit: 10 });
+      return AttendanceCollection.rawCollection()
+        .aggregate(pipeline, { allowDiskUse: true })
+        .toArray()
+        .then((res) => {
+          const retval = {};
+          if (res && res.length) {
+            retval.data = res.map((d) => ({ ...d, _id: d._id }));
+            retval.lastbasis = res[res.length - 1].index1;
+          }
+          return retval;
+        });
     },
   });
 }

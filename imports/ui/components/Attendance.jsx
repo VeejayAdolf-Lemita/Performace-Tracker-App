@@ -1,24 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Attendances from '../../api/classes/client/attendance/Attendance';
-
-function calculateTimeDuration(startTime, stopTime) {
-  const start = new Date(`2000-01-01T${startTime}`);
-  const stop = new Date(`2000-01-02T${stopTime}`);
-  const durationMillis = stop - start;
-  return durationMillis;
-}
-
-function calculateDurationString(durationMillis) {
-  const durationHours = Math.floor(durationMillis / (60 * 60 * 1000));
-  const durationMinutes = Math.floor((durationMillis % (60 * 60 * 1000)) / (60 * 1000));
-  return `${durationHours}h ${durationMinutes}m`;
-}
-
-function calculateProductivityPercentage(activity) {
-  const activityPercentage = parseFloat(activity);
-  return Math.round(activityPercentage);
-}
+import moment from 'moment';
 
 class Attendance extends Component {
   constructor(props) {
@@ -31,48 +14,45 @@ class Attendance extends Component {
   }
 
   componentDidMount() {
-    Attendances.getAttendance(``, ``);
+    Attendances.getAttendance();
   }
 
-  handleDateChange = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
+  getAttendance = () => {
+    if (this.state.rawDateFilter === '') {
+      Attendances.getAttendance();
+    } else {
+      Attendances.getFilteredAttendance(this.state.rawDateFilter);
     }
   };
 
-  handleDateChange2 = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
-    }
+  handleDateChange = async (event) => {
+    await this.setState({ rawDateFilter2: event.target.value });
+    const formattedDate = await moment(event.target.value, 'YYYY-MM-DD').format(
+      'YYYY-MM-DDTHH:mm:ss.SSSZ',
+    );
+    await this.setState({ rawDateFilter: formattedDate });
   };
 
   handleAttendanceFilter = () => {
-    Attendances.getAttendance(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
+    Attendances.getFilteredAttendance(this.state.rawDateFilter);
+  };
+
+  handleClearState = () => {
+    this.setState({ rawDateFilter: '', rawDateFilter2: '' });
+    // window.location.reload();
   };
 
   handleExport = () => {
     const attendanceData = this.props.attendance;
 
-    // Convert the data to a suitable format (e.g., CSV, JSON, Excel, etc.)
-    // For demonstration purposes, we'll use CSV format
     let csvContent = 'Name,Date,Status,Start Time,Stop Time,Duration,Activity,\n';
     attendanceData.forEach((data) => {
-      const row = `${data.Name},${data.Date},${data.Status},${data.StartTime},${data.StopTime},${data.Duration},${data.Activity}\n`;
+      const row = `${data.name},${data.date},${data.status},${data.timeIn},${data.timeOut},${data.duration},${data.activity}\n`;
       csvContent += row;
     });
 
-    // Create a Blob containing the CSV data
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
-    // Create a download link and trigger the download
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = 'attendance.csv';
@@ -82,44 +62,66 @@ class Attendance extends Component {
     document.body.removeChild(downloadLink);
   };
 
-  render() {
-    const { rawDateFilter, rawDateFilter2 } = this.state;
-
-    let totalOfficeTime = 0;
-    let totalActiveTime = 0;
-    let totalProductivity = 0;
-    let validAttendanceCount = 0; // To keep track of valid attendance records
-
-    this.props.attendance.forEach((data) => {
-      if (data.Status !== 'Absent') {
-        // Exclude "Absent" records
-        validAttendanceCount++;
-
-        const durationMillis = calculateTimeDuration(data.StartTime, data.StopTime);
-        totalOfficeTime += durationMillis;
-
-        if (data.ActiveTime && data.ActiveTime !== '0') {
-          // Exclude "ActiveTime" of 0
-          const activeDurationMillis = calculateTimeDuration('00:00:00', data.ActiveTime);
-          totalActiveTime += activeDurationMillis;
-        }
-
-        totalProductivity += calculateProductivityPercentage(data.Activity);
+  calculateAverageOfficeTime = () => {
+    const attendanceData = this.props.attendance;
+    const totalOfficeTime = attendanceData.reduce((total, data) => {
+      const { duration } = data;
+      if (!isNaN(duration)) {
+        return total + duration; // Assuming duration is in seconds
       }
-    });
+      return total;
+    }, 0);
 
-    const averageOfficeTime =
-      validAttendanceCount > 0
-        ? calculateDurationString(totalOfficeTime / validAttendanceCount)
-        : 'N/A';
+    const averageOfficeTime = totalOfficeTime / attendanceData.length; // Calculate the average
 
-    const averageActiveTime =
-      validAttendanceCount > 0
-        ? calculateDurationString(totalActiveTime / validAttendanceCount)
-        : 'N/A';
+    return averageOfficeTime;
+  };
 
-    const averageProductivity =
-      validAttendanceCount > 0 ? Math.round(totalProductivity / validAttendanceCount) : 'N/A';
+  calculateAverageProductivity = () => {
+    const attendanceData = this.props.attendance;
+    const totalProductivity = attendanceData.reduce((total, data) => {
+      const { activity } = data;
+      return total + parseFloat(activity);
+    }, 0);
+
+    const averageProductivity = totalProductivity / attendanceData.length; // Calculate the average
+
+    return averageProductivity;
+  };
+
+  calculateAverageActivityTime = () => {
+    const attendanceData = this.props.attendance;
+    const totalActivityTime = attendanceData.reduce((total, data) => {
+      const { duration, activity } = data;
+      if (!isNaN(duration)) {
+        const activityPercentage = parseFloat(activity) / 100;
+        const activityTime = duration * activityPercentage;
+        return total + activityTime;
+      }
+      return total;
+    }, 0);
+
+    const averageActivityTime = totalActivityTime / attendanceData.length; // Calculate the average
+
+    return averageActivityTime;
+  };
+
+  render() {
+    const { rawDateFilter2 } = this.state;
+    console.log(this.props.attendance);
+
+    const averageOfficeTime = this.calculateAverageOfficeTime();
+    const averageProductivity = this.calculateAverageProductivity();
+    const averageActivityTime = this.calculateAverageActivityTime();
+    const sortedAttendance = this.props.attendance
+      .slice()
+      .sort((a, b) => moment(b.date).valueOf() - moment(a.date).valueOf());
+
+    const formatDurationAsHHMM = (durationInSeconds) => {
+      const hours = Math.floor(durationInSeconds / 3600);
+      const minutes = Math.floor((durationInSeconds % 3600) / 60);
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -142,7 +144,9 @@ class Attendance extends Component {
                       <div className='card_dashboard-label'>Office Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTime}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {isNaN(averageOfficeTime) ? 'N/A' : formatDurationAsHHMM(averageOfficeTime)}
+                    </h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -151,7 +155,11 @@ class Attendance extends Component {
                       <div className='card_dashboard-label'>Active Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTime}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {isNaN(averageActivityTime)
+                        ? 'N/A'
+                        : formatDurationAsHHMM(averageActivityTime)}
+                    </h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -159,31 +167,24 @@ class Attendance extends Component {
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity}%</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {isNaN(averageProductivity) ? 'N/A' : `${Math.round(averageProductivity)}%`}
+                    </h1>
                   </div>
                 </div>
               </div>
               <div className='ry_bodycontainer flex-vertical'>
                 <div className='ry_bodytop'>
                   <div className='ry_bodytop_left' style={{ gap: '10px' }}>
-                    <label>From:</label>
-                    <input
-                      type='date'
-                      className='ry_text-field-style1 w-input'
-                      required
-                      value={rawDateFilter}
-                      onChange={this.handleDateChange}
-                      style={{ background: '#fff' }}
-                    />
-                    <label>To:</label>
                     <input
                       type='date'
                       className='ry_text-field-style1 w-input'
                       required
                       value={rawDateFilter2}
-                      onChange={this.handleDateChange2}
+                      onChange={this.handleDateChange}
                       style={{ background: '#fff' }}
                     />
+                    <button onClick={this.handleClearState}>Clear</button>
                   </div>
                   <div className='ry_bodytop_right'>
                     <div
@@ -192,8 +193,6 @@ class Attendance extends Component {
                     >
                       <img
                         src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647eef8aec75fb8b58e0fc0c_icon_filter.svg'
-                        loading='lazy'
-                        alt=''
                         className='icon-btn_asset'
                       />
                       <div>Filter</div>
@@ -264,19 +263,19 @@ class Attendance extends Component {
                           </div>
                         </div>
                         <div className='rb-table-content'>
-                          {this.props.attendance.map((data) => (
+                          {sortedAttendance.map((data) => (
                             <div className='rb-table-row' key={data._id}>
                               <div className='rb-table-col stretch'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Name}</div>
+                                    <div>{data.employeeName}</div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _15'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.Date}</div>
+                                    <div>{moment(data.date).format('ddd, MMM D')}</div>
                                   </div>
                                 </div>
                               </div>
@@ -284,24 +283,24 @@ class Attendance extends Component {
                                 <div className='rb-table-cell'>
                                   <div
                                     className={`ry_badge-style1 ${
-                                      data.Status === 'Absent' ? 'bg-red' : ''
+                                      data.status === 'Absent' ? 'bg-red' : ''
                                     }`}
                                   >
-                                    {data.Status}
+                                    {data.status}
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _15'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.StartTime}</div>
+                                    <div>{moment.unix(data.timeIn).format('HH:mm')}</div>
                                   </div>
                                 </div>
                               </div>
                               <div className='rb-table-col _15'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
-                                    <div>{data.StopTime}</div>
+                                    <div>{moment.unix(data.timeOut).format('HH:mm')}</div>
                                   </div>
                                 </div>
                               </div>
@@ -309,7 +308,20 @@ class Attendance extends Component {
                                 <div className='rb-table-cell'>
                                   <div className='table-text'>
                                     {data.Duration === 'NaNh NaNm' ? null : (
-                                      <div>{data.Duration}</div>
+                                      <div>
+                                        {(() => {
+                                          const durationInSeconds = moment
+                                            .duration(data.duration, 'seconds')
+                                            .asSeconds();
+                                          const hours = Math.floor(durationInSeconds / 3600);
+                                          const minutes = Math.floor(
+                                            (durationInSeconds % 3600) / 60,
+                                          );
+                                          return `${hours.toString().padStart(2, '0')}:${minutes
+                                            .toString()
+                                            .padStart(2, '0')}`;
+                                        })()}
+                                      </div>
                                     )}
                                   </div>
                                 </div>
@@ -317,13 +329,14 @@ class Attendance extends Component {
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text text-green'>
-                                    <div>{`${data.Activity}`}</div>
+                                    <div>{`${data.activity} %`}</div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           ))}
                         </div>
+                        <button onClick={this.getAttendance}>Load Data</button>
                       </div>
                     </div>
                   </div>
@@ -333,6 +346,7 @@ class Attendance extends Component {
           </div>
         </div>
       </div>
+      // <></>
     );
   }
 }

@@ -1,75 +1,78 @@
 import { AttendanceCollection, EmployeesCollection } from '../../db';
-import { GetAttendance, GetActive } from '../../common';
+import { GetAttendance, GetActive, GetFilteredAttendance } from '../../common';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetAttendance]: function (gte, lte) {
-      if ((gte === '' && lte === '') || gte === undefined || gte === null) {
-        const attendanceData = AttendanceCollection.find({}).fetch();
-
-        const formattedData = attendanceData.map((data) => {
-          const dateObj = new Date(data.date);
-          const formattedDate = dateObj.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-          });
-
-          const startTime = new Date(`2000-01-01T${data.timeIn}`);
-          const stopTime = new Date(`2000-01-02T${data.timeOut}`);
-          const durationMillis = stopTime - startTime;
-
-          const durationHours = Math.floor(durationMillis / (60 * 60 * 1000));
-          const durationMinutes = Math.floor((durationMillis % (60 * 60 * 1000)) / (60 * 1000));
-
-          return {
-            Name: data.employeeName,
-            Date: formattedDate,
-            Status: data.status,
-            StartTime: data.timeIn,
-            StopTime: data.timeOut,
-            Duration: `${durationHours}h ${durationMinutes}m`,
-            Activity: `${data.activity}%`,
-            ActiveTime: data.activeTime,
-            Productivity: data.productivity,
-          };
+    [GetAttendance]: function (lastbasis) {
+      const pipeline = [];
+      const match = { index1: { $regex: 'Company' } };
+      const project = {
+        _id: 1,
+        index1: 1,
+        employeeName: 1,
+        date: 1,
+        status: 1,
+        timeIn: 1,
+        timeOut: 1,
+        activity: 1,
+        productivity: 1,
+      };
+      const addFields = {
+        duration: { $subtract: ['$timeOut', '$timeIn'] },
+      };
+      if (lastbasis) match.index1.$lt = lastbasis;
+      pipeline.push({ $match: match });
+      pipeline.push({ $project: project });
+      pipeline.push({ $addFields: addFields });
+      pipeline.push({ $limit: 10 });
+      return AttendanceCollection.rawCollection()
+        .aggregate(pipeline, { allowDiskUse: true })
+        .toArray()
+        .then((res) => {
+          const retval = {};
+          if (res && res.length) {
+            retval.data = res.map((d) => ({ ...d, _id: d._id }));
+            retval.lastbasis = res[res.length - 1].index1;
+          }
+          return retval;
         });
-        return formattedData;
-      } else {
-        const attendanceData = AttendanceCollection.find({
-          date: { $gte: gte, $lte: lte },
-        }).fetch();
-
-        const formattedData = attendanceData.map((data) => {
-          const dateObj = new Date(data.date);
-          const formattedDate = dateObj.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-          });
-
-          const startTime = new Date(`2000-01-01T${data.timeIn}`);
-          const stopTime = new Date(`2000-01-02T${data.timeOut}`);
-          const durationMillis = stopTime - startTime;
-
-          const durationHours = Math.floor(durationMillis / (60 * 60 * 1000));
-          const durationMinutes = Math.floor((durationMillis % (60 * 60 * 1000)) / (60 * 1000));
-
-          return {
-            Name: data.employeeName,
-            Date: formattedDate,
-            Status: data.status,
-            StartTime: data.timeIn,
-            StopTime: data.timeOut,
-            Duration: `${durationHours}h ${durationMinutes}m`,
-            Activity: `${data.activity}%`,
-            ActiveTime: data.activeTime,
-            Productivity: data.productivity,
-          };
-        });
-        return formattedData;
-      }
     },
+    [GetFilteredAttendance]: function (data, lastbasis) {
+      console.log(data);
+      const pipeline = [];
+      const match = { index1: { $regex: 'Company' }, date: new Date(data) };
+      const project = {
+        _id: 1,
+        index1: 1,
+        employeeName: 1,
+        date: 1,
+        status: 1,
+        timeIn: 1,
+        timeOut: 1,
+        activity: 1,
+        productivity: 1,
+      };
+      const addFields = {
+        duration: { $subtract: ['$timeOut', '$timeIn'] },
+      };
+      if (lastbasis) match.index1.$lt = lastbasis;
+      pipeline.push({ $match: match });
+      pipeline.push({ $project: project });
+      pipeline.push({ $addFields: addFields });
+      return AttendanceCollection.rawCollection()
+        .aggregate(pipeline, { allowDiskUse: true })
+        .toArray()
+        .then((res) => {
+          const retval = {};
+          if (res && res.length) {
+            retval.data = res.map((d) => ({ ...d, _id: d._id }));
+            retval.lastbasis = res[res.length - 1].index1;
+          }
+          console.log(retval);
+          return retval;
+        });
+    },
+
     [GetActive]: function (data) {
       if (data === 'Today') {
         const today = new Date();

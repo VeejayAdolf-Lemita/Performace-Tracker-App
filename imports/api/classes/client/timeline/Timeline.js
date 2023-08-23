@@ -21,7 +21,7 @@ class Timeline extends Watcher {
   }
 
   getTimeline(gte, lte) {
-    this.Parent.callFunc(GetTimeline, gte, lte).then((data) => {
+    this.Parent.callFunc(GetTimeline, { gte, lte }).then((data) => {
       this.#dbtimeline.remove({});
       data.forEach((item) => {
         // Add a unique _id field to each item before inserting

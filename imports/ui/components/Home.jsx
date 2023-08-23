@@ -10,6 +10,36 @@ import Rating from '../../api/classes/client/dashboard/Rating';
 import Goals from '../../api/classes/client/goals/Goals';
 import Attendance from '../../api/classes/client/dashboard/Attendance';
 import Employees from '../../api/classes/client/review/Employees';
+import moment from 'moment';
+
+const dateString = '2023-08-08';
+const timestamp2 = moment(dateString).unix();
+console.log(timestamp2);
+
+// Create a moment object from the UNIX timestamp
+const momentObject = moment.unix(timestamp2);
+
+// Format the moment object as desired
+const formattedDate = momentObject.format('HH:mm:ss');
+console.log(formattedDate);
+
+// const formattedDate = moment.unix(timestamp2).format('MM-DD-YYYY HH:mm:ss');
+// console.log(formattedDate);
+
+// Active time calculation
+// const timeIn = 1692716400;
+// const timeOut = 1692741600;
+// const timeDuration = timeOut - timeIn;
+
+const duration = moment.duration(36000, 'seconds');
+const formattedDuration = moment.utc(duration.asMilliseconds()).format('HH:mm:ss');
+console.log(formattedDuration);
+// console.log(formattedDuration);
+// const duration = moment.duration(36000, 'seconds');
+// const formattedDuration = moment.utc(duration.asMilliseconds()).format('HH:mm:ss');
+// console.log(formattedDuration);
+console.log(moment().startOf('week').valueOf());
+console.log(moment().endOf('week').valueOf());
 
 const GCOLORS = ['#00b8b0', '#ccc', '#fbb03b'];
 function formatAMPM(date) {

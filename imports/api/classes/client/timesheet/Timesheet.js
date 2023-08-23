@@ -6,6 +6,7 @@ import { GetTimesheet } from '../../../common';
 class Timesheet extends Watcher {
   #timesheet = null;
   #dbtimesheet = null;
+  #lastbasis = null;
   constructor(parent) {
     super(parent);
     RedisVent.Timesheet.prepareCollection('timesheet');
@@ -20,14 +21,15 @@ class Timesheet extends Watcher {
     return this.#timesheet;
   }
 
-  getTimesheet(datas) {
-    this.Parent.callFunc(GetTimesheet, datas).then((data) => {
-      this.#dbtimesheet.remove({});
-      data.forEach((item) => {
-        // Add a unique _id field to each item before inserting
-        item._id = new Meteor.Collection.ObjectID().toHexString();
-        this.#dbtimesheet.insert(item);
-      });
+  getTimesheet() {
+    this.Parent.callFunc(GetTimesheet, this.#lastbasis).then((data) => {
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID().toHexString();
+          this.#dbtimesheet.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
     });
   }
 }

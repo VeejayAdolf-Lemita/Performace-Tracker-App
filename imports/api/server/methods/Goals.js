@@ -62,6 +62,7 @@ if (Meteor.isServer) {
               goalEnd: 1,
               achieved: 1,
               createdAt: 1,
+              timestamp: 1,
               daysLeft: {
                 $ceil: {
                   $divide: [
@@ -102,7 +103,7 @@ if (Meteor.isServer) {
           },
           // Sort the results by 'percentage' in descending order
           {
-            $sort: { percentage: -1 },
+            $sort: { timestamp: -1 },
           },
           {
             $match: {
@@ -128,6 +129,7 @@ if (Meteor.isServer) {
               goalEnd: 1,
               achieved: 1,
               createdAt: 1,
+              timestamp: 1,
               daysLeft: {
                 $ceil: {
                   $divide: [
@@ -168,7 +170,7 @@ if (Meteor.isServer) {
           },
           // Sort the results by 'percentage' in descending order
           {
-            $sort: { percentage: -1 },
+            $sort: { timestamp: -1 },
           },
           {
             $match: {
@@ -195,6 +197,7 @@ if (Meteor.isServer) {
               goalEnd: 1,
               achieved: 1,
               createdAt: 1,
+              timestamp: 1,
               daysLeft: {
                 $ceil: {
                   $divide: [
@@ -235,7 +238,7 @@ if (Meteor.isServer) {
           },
           // Sort the results by 'percentage' in descending order
           {
-            $sort: { percentage: -1 },
+            $sort: { timestamp: -1 },
           },
         ];
 

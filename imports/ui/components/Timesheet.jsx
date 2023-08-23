@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Timesheets from '../../api/classes/client/timesheet/Timesheet';
+import moment from 'moment';
 
 function calculateTimeDifference(startTime, endTime) {
   const [startHour, startMinute, startSecond] = startTime.split(':').map(Number);
@@ -20,13 +21,6 @@ function calculateTimeDifference(startTime, endTime) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-function calculateTimeDifferenceFromSeconds(seconds) {
-  const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const remainingSeconds = String(Math.floor(seconds % 60)).padStart(2, '0');
-  return `${hours}:${minutes}:${remainingSeconds}`;
-}
-
 class Timesheet extends Component {
   constructor(props) {
     super(props);
@@ -41,35 +35,27 @@ class Timesheet extends Component {
     Timesheets.getTimesheet();
   }
 
-  handleDateChange = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-    }
-  };
+  handleDateChange = (event) => {};
 
   handleTimeSheetFilter = () => {
     Timesheets.getTimesheet(`${this.state.dateFilter}`);
   };
 
+  getTimesheet = () => {
+    Timesheets.getTimesheet();
+  };
+
   handleExport = () => {
     const timesheetData = this.props.timesheet;
 
-    // Convert the data to a suitable format (e.g., CSV, JSON, Excel, etc.)
-    // For demonstration purposes, we'll use CSV format
     let csvContent = 'Name,Team,Date,Office Time,Productivity,Earnings\n';
     timesheetData.forEach((data) => {
       const row = `${data.Name},${data.Team},${data.Date},"${data.OfficeTime}",${data.Productivity}%,${data.Earnings} $\n`;
       csvContent += row;
     });
 
-    // Create a Blob containing the CSV data
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
-    // Create a download link and trigger the download
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(blob);
     downloadLink.download = 'timesheet.csv';
@@ -80,57 +66,11 @@ class Timesheet extends Component {
   };
 
   render() {
-    let totalOfficeTimeInSeconds = 0;
-    let shiftCount = 0;
-
-    this.props.timesheet.forEach((data) => {
-      const [startTime, endTime] = data.OfficeTime.split(' - ');
-      const [startHour, startMinute, startSecond] = startTime.split(':').map(Number);
-      const [endHour, endMinute, endSecond] = endTime.split(':').map(Number);
-
-      let effectiveOfficeTimeInSeconds =
-        (endHour - startHour) * 3600 + (endMinute - startMinute) * 60 + (endSecond - startSecond);
-
-      if (effectiveOfficeTimeInSeconds < 0) {
-        effectiveOfficeTimeInSeconds += 24 * 3600; // Add 24 hours (in seconds) to account for spanning across days
-      }
-
-      totalOfficeTimeInSeconds += effectiveOfficeTimeInSeconds;
-      shiftCount++;
-    });
-
-    const averageOfficeTimeInSeconds = totalOfficeTimeInSeconds / shiftCount;
-    const averageOfficeTime = calculateTimeDifferenceFromSeconds(averageOfficeTimeInSeconds);
-
-    let totalActiveTimeInSeconds = 0; // Initialize total active time
-
-    this.props.timesheet.forEach((data) => {
-      const activeTime = data.ActiveTime; // Get active time for this entry
-
-      if (activeTime) {
-        const [startHour, startMinute, startSecond] = activeTime.split(':').map(Number);
-        const activeTimeInSeconds = startHour * 3600 + startMinute * 60 + startSecond;
-
-        totalActiveTimeInSeconds += activeTimeInSeconds;
-        shiftCount++;
-      }
-    });
-
-    const averageActiveTimeInSeconds = shiftCount > 0 ? totalActiveTimeInSeconds / shiftCount : 0;
-    const averageActiveTime = calculateTimeDifferenceFromSeconds(averageActiveTimeInSeconds);
-    let totalProductivity = 0; // Initialize total productivity
-
-    this.props.timesheet.forEach((data) => {
-      const productivity = data.Productivity; // Get productivity for this entry
-
-      if (productivity) {
-        totalProductivity += parseInt(productivity); // Accumulate total productivity
-      }
-    });
-
-    const averageProductivity =
-      shiftCount > 0 ? Math.round(totalProductivity / shiftCount) + '%' : '0%';
     const { rawDateFilter } = this.state;
+    console.log(this.props.timesheet);
+    const sortedTimesheet = this.props.timesheet
+      .slice()
+      .sort((a, b) => moment(b.date).valueOf() - moment(a.date).valueOf());
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -157,7 +97,7 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Office Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTime}h</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>213123</h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -166,7 +106,7 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Active Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTime}h</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>213213</h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -174,7 +114,7 @@ class Timesheet extends Component {
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>123213</h1>
                   </div>
                 </div>
               </div>
@@ -267,63 +207,66 @@ class Timesheet extends Component {
                           </div>
                         </div>
                         <div className='rb-table-content'>
-                          {this.props.timesheet.map((data) => {
-                            const [startTime, endTime] = data.OfficeTime.split(' - ');
-
-                            const effectiveOfficeTime = calculateTimeDifference(startTime, endTime);
-                            return (
-                              <div className='rb-table-row' key={data._id}>
-                                <div className='rb-table-col stretch'>
-                                  <div className='rb-table-cell'>
-                                    <div className='div-block-398'>
-                                      <div className='ry_person-style2'>
-                                        <img src={data.image} />
-                                      </div>
-                                      <div className='table-text'>
-                                        <div>{data.Name}</div>
-                                      </div>
+                          {sortedTimesheet.map((data) => (
+                            <div className='rb-table-row' key={data._id}>
+                              <div className='rb-table-col stretch'>
+                                <div className='rb-table-cell'>
+                                  <div className='div-block-398'>
+                                    <div className='ry_person-style2'>
+                                      <img src={data.image} />
                                     </div>
-                                  </div>
-                                </div>
-                                <div className='rb-table-col _15'>
-                                  <div className='rb-table-cell'>
                                     <div className='table-text'>
-                                      <div>{data.Team}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className='rb-table-col _15'>
-                                  <div className='rb-table-cell'>
-                                    <div className='table-text'>
-                                      <div>{data.Date}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className='rb-table-col _20'>
-                                  <div className='rb-table-cell'>
-                                    <div className='table-text'>
-                                      <div>{effectiveOfficeTime}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className='rb-table-col _15'>
-                                  <div className='rb-table-cell'>
-                                    <div className='table-text text-green'>
-                                      <div>{`${data.Productivity}%`}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className='rb-table-col _15'>
-                                  <div className='rb-table-cell'>
-                                    <div className='table-text'>
-                                      <div>{`${data.Earnings} $`}</div>
+                                      <div>{data.employeeName}</div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            );
-                          })}
+                              <div className='rb-table-col _15'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text'>
+                                    <div>{data.department}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _15'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text'>
+                                    <div>{moment(data.date).format('ddd, MMM D')}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _20'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text'>
+                                    <div>
+                                      {calculateTimeDifference(
+                                        '00:00:00',
+                                        `${Math.floor(data.officeTime / 3600)}:${Math.floor(
+                                          (data.officeTime % 3600) / 60,
+                                        )}:${data.officeTime % 60}`,
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _15'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text text-green'>
+                                    <div>{`${data.productivity}%`}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='rb-table-col _15'>
+                                <div className='rb-table-cell'>
+                                  <div className='table-text'>
+                                    <div>{`${data.salary} $`}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
+                        <button onClick={this.getTimesheet}>Load Data</button>
                       </div>
                     </div>
                   </div>
