@@ -3,33 +3,31 @@ import { GetActivityLevel } from '../../common';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetActivityLevel]: async function (startDate, endDate) {
-      const matchStage = {
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      };
+    [GetActivityLevel]: async function ({ gte, lte }) {
+      const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
       const pipeline = [
         {
-          $match: matchStage,
+          $match: {
+            date: { $gte: new Date(gte), $lte: new Date(lte) },
+          },
         },
         {
           $group: {
             _id: {
               employeeName: '$employeeName',
               department: '$department',
-              image: '$image',
             },
-            activities: {
+            daysData: {
               $push: {
-                date: '$date',
+                dayOfWeek: { $dayOfWeek: '$date' },
                 activity: '$activity',
+                timeIn: '$timeIn',
+                timeOut: '$timeOut',
                 productivity: '$productivity',
-                activeTime: { $toDouble: { $substr: ['$activeTime', 0, 2] } },
               },
             },
+            averageActivity: { $avg: '$activity' },
           },
         },
         {
@@ -37,83 +35,55 @@ if (Meteor.isServer) {
             _id: 0,
             Name: '$_id.employeeName',
             Department: '$_id.department',
-            activities: 1,
-            image: '$_id.image',
-            averageActivity: { $avg: '$activities.activity' },
-            averageActiveTime: { $avg: '$activities.activeTime' },
+            daysData: 1,
+            averageActivity: 1,
           },
         },
       ];
 
-      try {
-        const activityData = await AttendanceCollection.rawCollection()
-          .aggregate(pipeline)
-          .toArray();
+      const aggregatedData = await AttendanceCollection.rawCollection()
+        .aggregate(pipeline)
+        .toArray();
 
-        const formattedData = activityData.map((data) => {
-          const activityByDay = {
-            Mon: '-',
-            Tue: '-',
-            Wed: '-',
-            Thu: '-',
-            Fri: '-',
-          };
-          let totalActiveTime = 0; // Initialize the total active time
+      const formattedData = aggregatedData.map((item) => {
+        let totalOfficeTime = 0;
+        let totalActivityTime = 0;
+        let totalProductivity = 0;
 
-          data.activities.forEach((activity) => {
-            const dayOfWeek = new Date(activity.date).toLocaleDateString('en-US', {
-              weekday: 'short',
-            });
-            activityByDay[dayOfWeek] = `${activity.activity}%`;
-            totalActiveTime += activity.activeTime; // Accumulate active time
-          });
+        const formattedItem = {
+          Name: item.Name,
+          Department: item.Department,
+          AverageActivity: `${item.averageActivity.toFixed(0)}`,
+        };
 
-          const averageActiveTime = totalActiveTime / data.activities.length; // Calculate average active time
+        item.daysData.forEach((dayData) => {
+          const dayOfWeek = dayData.dayOfWeek - 1; // Convert to array index
 
-          const officeTimeAverage = calculateOfficeTimeAverage(data.activities, averageActiveTime);
+          const timeIn = dayData.timeIn;
+          const timeOut = dayData.timeOut;
+          const activity = dayData.activity;
+          const productivity = dayData.productivity;
 
-          const totalProductivity = data.activities.reduce((total, activity) => {
-            if (typeof activity.productivity === 'number' && !isNaN(activity.productivity)) {
-              return total + activity.productivity;
-            }
-            return total;
-          }, 0);
+          if (timeIn && timeOut) {
+            const workDuration = timeOut - timeIn;
+            totalOfficeTime += workDuration;
+          }
 
-          const averageProductivity =
-            data.activities.length > 0 ? totalProductivity / data.activities.length : 0;
+          totalActivityTime += activity;
+          totalProductivity += productivity;
 
-          const roundedAverageProductivity = Math.round(averageProductivity); // Round to the nearest integer
-
-          const formattedAverageProductivity = roundedAverageProductivity.toString();
-
-          return {
-            Name: data.Name,
-            image: data.image,
-            Department: data.Department,
-            ...activityByDay,
-            AverageActivity: `${data.averageActivity.toFixed(0)}%`,
-            AverageActiveTime: `${averageActiveTime.toFixed(2)}h`,
-            OfficeTimeAverage: `${officeTimeAverage.toFixed(2)}h`,
-            AverageProductivity: `${formattedAverageProductivity}%`,
-          };
+          formattedItem[daysOfWeek[dayOfWeek]] = `${activity.toFixed(0)}%`;
         });
 
-        // Function to calculate office time average
-        function calculateOfficeTimeAverage(activities, averageActiveTime) {
-          const totalOfficeTime = activities.reduce((total, activity) => {
-            const officeTime = 24 - averageActiveTime - activity.activeTime; // Calculate office time per activity
-            return total + officeTime;
-          }, 0);
+        const totalDays = item.daysData.length;
+        formattedItem.avgOfficeTime = (totalOfficeTime / totalDays).toFixed(0);
+        formattedItem.avgActivityTime = (totalActivityTime / totalDays).toFixed(0);
+        formattedItem.avgProductivity = (totalProductivity / totalDays).toFixed(0);
 
-          return totalOfficeTime / activities.length;
-        }
+        return formattedItem;
+      });
 
-        return formattedData;
-      } catch (error) {
-        // Handle error
-        console.error('Error fetching activity data:', error);
-        throw new Meteor.Error('activity-data-fetch-error', 'Error fetching activity data');
-      }
+      return formattedData;
     },
   });
 }

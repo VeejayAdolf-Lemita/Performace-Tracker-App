@@ -1,39 +1,33 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import ActivityLevels from '../../api/classes/client/activity-level/ActivityLevel';
-
+import moment from 'moment';
 class ActivityLevel extends Component {
   constructor(props) {
     super(props);
     this.state = {
       rawDateFilter: '',
       rawDateFilter2: '',
+      gte: '',
+      lte: '',
     };
     ActivityLevels.setWatcher(this, 'ActivityLevel');
   }
 
-  handleDateChange = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter: formattedDate, rawDateFilter: inputValue }); // Update both states
-    }
+  handleDateChange = async (event) => {
+    this.setState({ rawDateFilter: event.target.value });
+    const gte = await moment(event.target.value, 'YYYY-MM-DD').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    this.setState({ gte: gte });
   };
 
-  handleDateChange2 = (event) => {
-    const inputValue = event.target.value;
-    const [year, month, day] = inputValue.split('-'); // Assuming input value is in YYYY-MM-DD format
-
-    if (year && month && day) {
-      const formattedDate = `${month}/${day}/${year}`;
-      this.setState({ dateFilter2: formattedDate, rawDateFilter2: inputValue }); // Update both states
-    }
+  handleDateChange2 = async (event) => {
+    this.setState({ rawDateFilter2: event.target.value });
+    const lte = await moment(event.target.value, 'YYYY-MM-DD').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    this.setState({ lte: lte });
   };
 
   handleActivityLevelFilter = () => {
-    ActivityLevels.getActivityLvl(`${this.state.dateFilter}`, `${this.state.dateFilter2}`);
+    ActivityLevels.getActivityLvl(this.state.gte, this.state.lte);
   };
 
   handleExport = () => {
@@ -62,59 +56,48 @@ class ActivityLevel extends Component {
 
   render() {
     const { rawDateFilter, rawDateFilter2 } = this.state;
-    const { activityLvl } = this.props;
-    const numObjects = activityLvl.length;
-    let totalActiveTimeInSeconds = 0;
-    let totalProductivity = 0;
-    let totalOfficeTimeInSeconds = 0;
 
-    activityLvl.forEach((item) => {
-      // Extract numerical values for AverageActiveTime, AverageProductivity, and OfficeTimeAverage
-      const activeTime = item.AverageActiveTime; // The format is like "9.71h"
-      const productivity = parseFloat(item.AverageProductivity);
-      const officeTime = item.OfficeTimeAverage; // The format is like "5.285"
+    console.log(this.props.activityLvl);
+    const activityLvlData = this.props.activityLvl;
+    const avgProductivityValues = activityLvlData.map((data) => parseInt(data.avgProductivity, 10)); // Convert to integers
+    const totalAvgProductivity = avgProductivityValues.reduce((sum, value) => sum + value, 0);
+    const averageProductivity = totalAvgProductivity / avgProductivityValues.length;
 
-      // Convert activeTime to seconds and add to totalActiveTimeInSeconds
-      const activeTimeParts = activeTime.split('.');
-      const hours = parseInt(activeTimeParts[0]);
-      const minutes = Math.round(parseFloat(`0.${activeTimeParts[1]}`) * 60);
-      const totalSeconds = hours * 3600 + minutes * 60;
-      if (!isNaN(totalSeconds)) {
-        totalActiveTimeInSeconds += totalSeconds;
-      }
+    // Round off the averageProductivity to a whole number
+    const roundedAverageProductivity = Math.round(averageProductivity);
 
-      if (!isNaN(productivity)) {
-        totalProductivity += productivity;
-      }
+    // Calculate average office time
 
-      // Convert officeTime to seconds and add to totalOfficeTimeInSeconds
-      const officeTimeParts = officeTime.split('.');
-      const officeHours = parseInt(officeTimeParts[0]);
-      const officeMinutes = Math.round(parseFloat(`0.${officeTimeParts[1]}`) * 60);
-      const totalOfficeSeconds = officeHours * 3600 + officeMinutes * 60;
-      if (!isNaN(totalOfficeSeconds)) {
-        totalOfficeTimeInSeconds += totalOfficeSeconds;
-      }
-    });
+    const avgOfficeTimeValues = activityLvlData.map((data) => parseInt(data.avgOfficeTime, 10)); // Convert to integers
+    const totalAvgOfficeTime = avgOfficeTimeValues.reduce((sum, value) => sum + value, 0);
+    const averageOfficeTimeInSeconds = totalAvgOfficeTime / avgOfficeTimeValues.length;
 
-    // Calculate averages
-    const averageActiveTimeInSeconds = totalActiveTimeInSeconds / numObjects;
-    const averageProductivity = totalProductivity / numObjects;
-    const averageOfficeTimeInSeconds = totalOfficeTimeInSeconds / numObjects;
+    // Convert seconds to hh:mm:ss format
+    const hours = Math.floor(averageOfficeTimeInSeconds / 3600);
+    const minutes = Math.floor((averageOfficeTimeInSeconds % 3600) / 60);
+    const seconds = Math.floor(averageOfficeTimeInSeconds % 60);
 
-    // Convert averageActiveTimeInSeconds back to hh:mm:ss format
-    const averageActiveHours = Math.floor(averageActiveTimeInSeconds / 3600);
-    const averageActiveMinutes = Math.floor((averageActiveTimeInSeconds % 3600) / 60);
-    const averageActiveSeconds = averageActiveTimeInSeconds % 60;
-    const averageActiveTimeFormatted = `${averageActiveHours}:${averageActiveMinutes
-      .toString()
-      .padStart(2, '0')}:${averageActiveSeconds.toString().padStart(2, '0')}`;
+    // Format the time values
+    const formattedHours = hours < 10 ? `0${hours}` : hours.toString();
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString();
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds.toString();
 
-    const averageOfficeHours = Math.floor(averageOfficeTimeInSeconds / 3600);
-    const averageOfficeMinutes = Math.floor((averageOfficeTimeInSeconds % 3600) / 60);
-    const averageOfficeTimeFormatted = `${averageOfficeHours
-      .toString()
-      .padStart(2, '0')}:${averageOfficeMinutes.toString().padStart(2, '0')}`;
+    const formattedTime = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+
+    const avgActivityTimeValues = activityLvlData.map((data) => parseInt(data.avgActivityTime, 10)); // Convert to integers
+    const totalAvgActivityTime = avgActivityTimeValues.reduce((sum, value) => sum + value, 0);
+    const averageActivityTime = totalAvgActivityTime / avgActivityTimeValues.length;
+
+    const avgHours = Math.floor(averageActivityTime / 3600);
+    const avgMinutes = Math.floor((averageActivityTime % 3600) / 60);
+    const avgSeconds = Math.floor(averageActivityTime % 60);
+
+    const formattedAvgHours = avgHours < 10 ? `0${avgHours}` : avgHours.toString();
+    const formattedAvgMinutes = avgMinutes < 10 ? `0${avgMinutes}` : avgMinutes.toString();
+    const formattedAvgSeconds = avgSeconds < 10 ? `0${avgSeconds}` : avgSeconds.toString();
+
+    const formattedAvgActivityTime = `${formattedAvgHours}:${formattedAvgMinutes}:${formattedAvgSeconds}`;
+
     return (
       <div className='ry_main-style1'>
         <div className='ry_main-style1_container'>
@@ -138,9 +121,7 @@ class ActivityLevel extends Component {
                       <div className='ry_p-style1'>OfficeTimeAverage</div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>
-                      {averageOfficeTimeFormatted === 'NaN:NaN'
-                        ? 'N/A'
-                        : `${averageOfficeTimeFormatted}h`}
+                      {formattedTime !== 'NaN:NaN:NaN' ? formattedTime : 'N/A'}
                     </h1>
                   </div>
                 </div>
@@ -151,9 +132,9 @@ class ActivityLevel extends Component {
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>
-                      {averageActiveTimeFormatted === 'NaN:NaN:NaN'
-                        ? 'N/A'
-                        : `${averageActiveTimeFormatted}h`}
+                      {formattedAvgActivityTime !== 'NaN:NaN:NaN'
+                        ? formattedAvgActivityTime
+                        : 'N/A'}
                     </h1>
                   </div>
                 </div>
@@ -163,7 +144,9 @@ class ActivityLevel extends Component {
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
                     <h1 className='ry_h3-display1 weight-semibold'>
-                      {averageProductivity === 'NaN%' ? 'N/A' : `${averageProductivity}%`}
+                      {isNaN(roundedAverageProductivity)
+                        ? 'N/A'
+                        : `${roundedAverageProductivity} %`}
                     </h1>
                   </div>
                 </div>
@@ -336,7 +319,7 @@ class ActivityLevel extends Component {
                               <div className='rb-table-col _10'>
                                 <div className='rb-table-cell'>
                                   <div className='table-text text-green'>
-                                    <div>{data.AverageActivity}</div>
+                                    <div>{`${data.AverageActivity} %`}</div>
                                   </div>
                                 </div>
                               </div>

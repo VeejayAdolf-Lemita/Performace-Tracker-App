@@ -1,7 +1,7 @@
 import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
-import { GetTimesheet } from '../../../common';
+import { GetTimesheet, GetFilteredTimesheet } from '../../../common';
 
 class Timesheet extends Watcher {
   #timesheet = null;
@@ -30,6 +30,20 @@ class Timesheet extends Watcher {
         });
         this.#lastbasis = data.lastbasis;
       }
+    });
+  }
+
+  getFilteredTimesheet(datas) {
+    this.Parent.callFunc(GetFilteredTimesheet, datas).then((data) => {
+      this.#dbtimesheet.remove({});
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
+          this.#dbtimesheet.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
+      this.activateWatcher();
     });
   }
 }

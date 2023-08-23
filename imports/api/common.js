@@ -31,6 +31,7 @@ export const GetTeams = 'get.team';
 
 //Timesheet
 export const GetTimesheet = 'get.timesheet';
+export const GetFilteredTimesheet = 'get.filter.timesheet';
 
 //Timeline
 export const GetTimeline = 'get.timeline';

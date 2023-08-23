@@ -35,14 +35,25 @@ class Timesheet extends Component {
     Timesheets.getTimesheet();
   }
 
-  handleDateChange = (event) => {};
+  handleDateChange = async (event) => {
+    this.setState({ rawDateFilter: event.target.value });
+    const formattedDate = await moment(event.target.value, 'YYYY-MM-DD').format(
+      'YYYY-MM-DDTHH:mm:ss.SSSZ',
+    );
+    this.setState({ dateFilter: formattedDate });
+  };
 
   handleTimeSheetFilter = () => {
-    Timesheets.getTimesheet(`${this.state.dateFilter}`);
+    Timesheets.getFilteredTimesheet(`${this.state.dateFilter}`);
   };
 
   getTimesheet = () => {
-    Timesheets.getTimesheet();
+    const { rawDateFilter } = this.state;
+    if (rawDateFilter === '') {
+      Timesheets.getTimesheet();
+    } else {
+      Timesheets.getFilteredTimesheet(`${this.state.dateFilter}`);
+    }
   };
 
   handleExport = () => {
@@ -65,8 +76,63 @@ class Timesheet extends Component {
     document.body.removeChild(downloadLink);
   };
 
+  calculateTotalTimeDifference = (timesheetData) => {
+    let totalSeconds = 0;
+
+    timesheetData.forEach((data) => {
+      const hours = Math.floor(data.officeTime / 3600);
+      const minutes = Math.floor((data.officeTime % 3600) / 60);
+      const seconds = data.officeTime % 60;
+      totalSeconds += data.officeTime;
+    });
+
+    const averageSeconds = totalSeconds / timesheetData.length;
+
+    const averageHours = Math.floor(averageSeconds / 3600);
+    const averageMinutes = Math.floor((averageSeconds % 3600) / 60);
+    const averageSecondsRemainder = Math.floor(averageSeconds % 60);
+
+    return `${averageHours}:${String(averageMinutes).padStart(2, '0')}:${String(
+      averageSecondsRemainder,
+    ).padStart(2, '0')}`;
+  };
+
+  calculateTotalActiveTimeDifference = (timesheetData) => {
+    let totalActiveSeconds = 0;
+
+    timesheetData.forEach((data) => {
+      const activityPercentage = data.activity / 100; // Convert activity percentage to a fraction
+      const activeSeconds = data.officeTime * activityPercentage;
+      totalActiveSeconds += activeSeconds;
+    });
+
+    const averageActiveSeconds = totalActiveSeconds / timesheetData.length;
+
+    const averageHours = Math.floor(averageActiveSeconds / 3600);
+    const averageMinutes = Math.floor((averageActiveSeconds % 3600) / 60);
+    const averageSecondsRemainder = Math.floor(averageActiveSeconds % 60);
+
+    return `${averageHours}:${String(averageMinutes).padStart(2, '0')}:${String(
+      averageSecondsRemainder,
+    ).padStart(2, '0')}`;
+  };
+
+  calculateAverageProductivity = (timesheetData) => {
+    let totalProductivity = 0;
+
+    timesheetData.forEach((data) => {
+      totalProductivity += data.productivity; // Sum up productivity percentages
+    });
+
+    const averageProductivity = totalProductivity / timesheetData.length;
+    return `${averageProductivity.toFixed(0)}%`; // Average productivity percentage
+  };
+
   render() {
     const { rawDateFilter } = this.state;
+    const averageOfficeTime = this.calculateTotalTimeDifference(this.props.timesheet);
+    const averageActiveTime = this.calculateTotalActiveTimeDifference(this.props.timesheet);
+    const averageProductivity = this.calculateAverageProductivity(this.props.timesheet);
     console.log(this.props.timesheet);
     const sortedTimesheet = this.props.timesheet
       .slice()
@@ -97,7 +163,7 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Office Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>213123</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTime}</h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -106,7 +172,7 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Active Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>213213</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTime}</h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -114,7 +180,7 @@ class Timesheet extends Component {
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>123213</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity}</h1>
                   </div>
                 </div>
               </div>
