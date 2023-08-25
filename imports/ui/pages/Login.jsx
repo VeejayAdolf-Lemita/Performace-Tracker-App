@@ -23,7 +23,7 @@ class Login extends Component {
   handleSubmit = (e) => {
     const { email, password } = this.state;
     e.preventDefault();
-    Client.loginWithPassword(email, password);
+    Client.loginWithPassword(email, password).catch((error) => alert(error));
   };
 
   render() {
