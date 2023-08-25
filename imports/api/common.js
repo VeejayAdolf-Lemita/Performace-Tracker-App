@@ -16,6 +16,7 @@ export const GetTopMostAppreciated = 'get.most.appreciated';
 export const GetReplies = 'get.replies';
 
 //Goals
+export const GetGoalsWIndex = 'get.index.goals';
 export const AddReply = 'add.reply';
 export const GetGoals = 'get.goals';
 export const AddGoal = 'add.goal';

@@ -1,16 +1,21 @@
 import Watcher from '../Watcher';
 import Client from '../Client';
 import RedisVent from '../RedisVent';
-import { GetGoals, AddGoal } from '../../../common';
+import { GetGoalsWIndex, GetGoals, AddGoal } from '../../../common';
 
 class Goals extends Watcher {
   #goals = null;
   #dbgoals = null;
+  #goalswindex = null;
+  #dbgoalswindex = null;
   #listen = null;
+  #lastbasis = null;
   constructor(parent) {
     super(parent);
     RedisVent.Goals.prepareCollection('goals');
     this.#dbgoals = RedisVent.Goals.getCollection('goals');
+    RedisVent.GoalsWIndex.prepareCollection('goalswindex');
+    this.#dbgoalswindex = RedisVent.GoalsWIndex.getCollection('goalswindex');
   }
 
   get Data() {
@@ -26,15 +31,19 @@ class Goals extends Watcher {
   }
 
   listen() {
-    if (this.listen) {
-      this.#listen = RedisVent.Goals.listen('goals', '123', ({ event, data }) => {
-        console.log(event, data);
-        switch (event) {
-          case 'insert':
-        }
-      });
+    try {
+      if (!this.#listen) {
+        this.#listen = RedisVent.GoalsWIndex.listen('goalswindex', '123', ({ event, data }) => {
+          console.log(event, data);
+          switch (event) {
+            case 'insert':
+          }
+        });
+      }
+      this.activateWatcher();
+    } catch (error) {
+      console.log(error);
     }
-    this.activateWatcher();
   }
 
   getGoals(datas) {
@@ -45,6 +54,37 @@ class Goals extends Watcher {
       });
       this.activateWatcher();
     });
+  }
+
+  get GoalsData() {
+    return this.GoalsWIndex.find({}, { sort: { timestamp: -1 } }).fetch();
+  }
+  /**
+   *
+   * @returns {import ("meteor/mongo").Mongo.Collection}
+   */
+  get GoalsWIndex() {
+    return this.#dbgoalswindex;
+  }
+
+  getGoalsWIndex(datas) {
+    let lastbasis = this.#lastbasis;
+    this.Parent.callFunc(GetGoalsWIndex, { datas, lastbasis }).then((data) => {
+      console.log(data);
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
+          this.#dbgoalswindex.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
+      this.activateWatcher();
+    });
+  }
+
+  clearDB() {
+    this.#dbgoalswindex.remove({});
+    this.#lastbasis = null;
   }
 }
 

@@ -88,11 +88,9 @@ class Reviews extends Watcher {
     });
   }
 
-  getReviewEntireCompany(datas, isClear = false) {
-    console.log(datas);
+  getReviewEntireCompany(datas) {
     let lastbasis = this.#lastbasis;
     this.Parent.callFunc(GetReviews, { datas, lastbasis }).then((data) => {
-      if (isClear) this.#dbreviews.remove();
       if (data && data.data && data.data.length) {
         data.data.forEach((item) => {
           item._id = new Meteor.Collection.ObjectID(data.data._id);

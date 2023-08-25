@@ -1,11 +1,78 @@
 import { GoalsCollection } from '../../db';
-import { GetGoals, AddGoal } from '../../common';
+import { GetGoalsWIndex, GetGoals, AddGoal } from '../../common';
 import moment from 'moment';
 import { check } from 'meteor/check';
 import RedisVent from '../RedisVent';
 
 if (Meteor.isServer) {
   Meteor.methods({
+    [GetGoalsWIndex]: function ({ datas, lastbasis }) {
+      const currentDate = new Date();
+      const pipeline = [];
+      const match = { index1: { $regex: datas } };
+      const project = {
+        _id: 1,
+        name: 1,
+        goalStart: 1,
+        goalEnd: 1,
+        index1: 1,
+        createdAt: 1,
+        achieved: 1,
+        daysLeft: {
+          $ceil: {
+            $divide: [
+              {
+                $subtract: [{ $toDate: '$goalEnd' }, { $toDate: currentDate }],
+              },
+              24 * 60 * 60 * 1000, // Milliseconds in a day
+            ],
+          },
+        },
+        percentage: {
+          $cond: {
+            if: { $eq: ['$achieved', true] },
+            then: 100,
+            else: {
+              $round: [
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        {
+                          $subtract: [currentDate, { $toDate: '$goalStart' }],
+                        },
+                        {
+                          $subtract: [{ $toDate: '$goalEnd' }, { $toDate: '$goalStart' }],
+                        },
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                0, // Round to 0 decimal places
+              ],
+            },
+          },
+        },
+      };
+      if (lastbasis) match.index1.$gt = lastbasis;
+      pipeline.push({ $match: match });
+      pipeline.push({ $project: project });
+      pipeline.push({ $limit: 4 });
+      return GoalsCollection.rawCollection()
+        .aggregate(pipeline, { allowDiskUse: true })
+        .toArray()
+        .then((res) => {
+          const retval = {};
+          if (res && res.length) {
+            retval.data = res.map((d) => ({ ...d, _id: d._id }));
+            retval.lastbasis = res[res.length - 1].index1;
+          }
+          return retval;
+        });
+    },
+
+    // this is for the chart
     [GetGoals]: async function (data) {
       const today = new Date();
 
@@ -45,6 +112,11 @@ if (Meteor.isServer) {
         const currentDate = new Date(); // Current date
 
         const pipeline = [
+          {
+            $match: {
+              createdAt: formatted_today,
+            },
+          },
           // Project the required fields
           {
             $project: {
@@ -91,15 +163,6 @@ if (Meteor.isServer) {
                   },
                 },
               },
-            },
-          },
-          // Sort the results by 'percentage' in descending order
-          {
-            $sort: { timestamp: -1 },
-          },
-          {
-            $match: {
-              createdAt: formatted_today,
             },
           },
         ];
@@ -243,6 +306,7 @@ if (Meteor.isServer) {
       try {
         check(data, Object);
         data.timestamp = moment().valueOf();
+        data.index1 = `${data.achieved}${data.timestamp}`;
         const id = GoalsCollection.insert(data);
         data._id = id._str;
         console.info(
@@ -251,7 +315,7 @@ if (Meteor.isServer) {
           `New Goal Added!`,
           moment(data.timestamp),
         );
-        RedisVent.Goals.triggerInsert('goals', '123', data);
+        RedisVent.GoalsWIndex.triggerInsert('goalswindex', '123', data);
       } catch (error) {
         console.error(AddGoal, error);
       }

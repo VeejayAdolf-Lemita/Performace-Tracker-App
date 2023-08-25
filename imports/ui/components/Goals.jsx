@@ -48,7 +48,8 @@ class Goals extends Component {
   }
 
   componentDidMount() {
-    Goalss.getGoals();
+    Goalss.getGoalsWIndex(this.state.goalFilter);
+    Goalss.listen();
   }
 
   handleGoalFilter = (event) => {
@@ -56,7 +57,11 @@ class Goals extends Component {
   };
 
   handleSubmitFilter = () => {
-    Goalss.getGoals(this.state.goalFilter);
+    Goalss.clearDB();
+    Goalss.getGoalsWIndex(this.state.goalFilter);
+  };
+  handleLoadGoals = () => {
+    Goalss.getGoalsWIndex(this.state.goalFilter);
   };
 
   handleGoalName = (event) => {
@@ -103,7 +108,7 @@ class Goals extends Component {
       achieved,
     };
     Goalss.addGoal(newGoal);
-    Goalss.getGoals();
+    Goalss.getGoalsWIndex(this.state.goalFilter);
     this.setState({
       goalEnd: '',
       goalName: '',
@@ -132,7 +137,7 @@ class Goals extends Component {
 
   render() {
     const { openModal, openNoteModal, goalFilter } = this.state;
-
+    console.log(this.props.goals);
     return (
       <div className='ry_main-style1'>
         <div className='ry_add-review-popup' style={{ display: openModal ? 'flex' : 'none' }}>
@@ -244,8 +249,8 @@ class Goals extends Component {
                     value={goalFilter}
                   >
                     <option value=''>All Goals</option>
-                    <option value='Today'>Today</option>
-                    <option value='Weekly'>Weekly</option>
+                    <option value='true'>Achieved Goals</option>
+                    <option value='false'>Pending Goals</option>
                   </select>
                 </div>
                 <div
@@ -316,6 +321,13 @@ class Goals extends Component {
                       </div>
                     </div>
                   ))}
+                  <div
+                    className='ry_icon-btn-style1 w-inline-block'
+                    style={{ cursor: 'pointer' }}
+                    onClick={this.handleLoadGoals}
+                  >
+                    Load More
+                  </div>
                 </div>
                 <div className='ry_bodycontainer_right'>
                   <div className='card_dashboard _w-100'>
@@ -394,7 +406,7 @@ export default withTracker(() => {
   Goalss.initiateWatch('Goals');
   Notes.initiateWatch('Goals');
   return {
-    goals: Goalss.Data,
+    goals: Goalss.GoalsData,
     notes: Notes.Data,
     Client: Client.user(),
   };

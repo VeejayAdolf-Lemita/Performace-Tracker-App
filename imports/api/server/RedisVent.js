@@ -31,6 +31,11 @@ class RedisVent {
     return this;
   }
 
+  get GoalsWIndex() {
+    this.#pre = 'goalswindex';
+    return this;
+  }
+
   get Activity() {
     this.#pre = 'activity';
     return this;
