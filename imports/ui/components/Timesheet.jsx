@@ -163,7 +163,9 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Office Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageOfficeTime}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageOfficeTime === 'NaN:NaN:NaN' ? 'N/A' : averageOfficeTime}
+                    </h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -172,7 +174,9 @@ class Timesheet extends Component {
                       <div className='card_dashboard-label'>Active Time</div>
                       <div className='ry_p-style1'>Average per Shift</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageActiveTime}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageActiveTime === 'NaN:NaN:NaN' ? 'N/A' : averageActiveTime}
+                    </h1>
                   </div>
                 </div>
                 <div className='card_dashboard_top _w-33 padding-20'>
@@ -180,7 +184,9 @@ class Timesheet extends Component {
                     <div className='div-block-382'>
                       <div className='card_dashboard-label'>Productivity</div>
                     </div>
-                    <h1 className='ry_h3-display1 weight-semibold'>{averageProductivity}</h1>
+                    <h1 className='ry_h3-display1 weight-semibold'>
+                      {averageProductivity === 'NaN%' ? 'N/A' : averageProductivity}
+                    </h1>
                   </div>
                 </div>
               </div>

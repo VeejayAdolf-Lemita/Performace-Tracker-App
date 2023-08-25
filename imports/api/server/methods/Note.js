@@ -9,7 +9,9 @@ if (Meteor.isServer) {
     [GetNotes]: function (goalId) {
       const test = NotesCollection.find({ goalId })
         .fetch()
-        .map((data) => data);
+        .map((data) => data)
+        .sort((a, b) => b.timestamp - a.timestamp);
+
       return test;
     },
     [AddNote]: function (data) {

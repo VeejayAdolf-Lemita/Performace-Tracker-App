@@ -167,6 +167,7 @@ class Review extends Component {
       replyMessage: '',
       reviewId: '',
       replyTo: '',
+      replyModal: false,
     });
   };
 

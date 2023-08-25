@@ -41,6 +41,7 @@ class Replies extends Watcher {
     this.Parent.callFunc(GetReplies, data).then((datas) => {
       this.#dbreplies.remove({});
       datas.forEach((item) => {
+        console.log(item);
         this.#dbreplies.insert(item);
       });
       this.activateWatcher();

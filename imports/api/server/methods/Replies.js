@@ -9,7 +9,9 @@ if (Meteor.isServer) {
     [GetReplies]: function (data) {
       const test = RepliesCollection.find({ reviewId: data })
         .fetch()
-        .map((data) => data);
+        .map((data) => data)
+        .sort((a, b) => b.timestamp - a.timestamp);
+
       return test;
     },
     [AddReply]: function (data) {

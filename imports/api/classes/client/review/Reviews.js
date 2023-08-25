@@ -93,7 +93,6 @@ class Reviews extends Watcher {
     this.Parent.callFunc(GetReviews, { datas, lastbasis }).then((data) => {
       if (data && data.data && data.data.length) {
         data.data.forEach((item) => {
-          item._id = new Meteor.Collection.ObjectID(data.data._id);
           this.#dbreviews.insert(item);
         });
         this.#lastbasis = data.lastbasis;
