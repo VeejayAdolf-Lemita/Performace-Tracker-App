@@ -7,6 +7,7 @@ class Employees extends Watcher {
   #employees = null;
   #dbemployees = null;
   #listen = null;
+  #lastbasis = null;
   constructor(parent) {
     super(parent);
     RedisVent.Employees.prepareCollection('employees');
@@ -14,11 +15,11 @@ class Employees extends Watcher {
   }
 
   get Data() {
-    return this.#dbemployees.find({}).fetch();
+    return this.Employees.find({}, { sort: { timestamp: -1 } }).fetch();
   }
 
   get Employees() {
-    return this.#employees;
+    return this.#dbemployees;
   }
 
   addMember(data) {
@@ -26,25 +27,38 @@ class Employees extends Watcher {
   }
 
   listen() {
-    if (this.listen) {
-      this.#listen = RedisVent.Employees.listen('employees', '123', ({ event, data }) => {
-        console.log(event, data);
-        switch (event) {
-          case 'insert':
-        }
-      });
+    try {
+      if (!this.#listen) {
+        this.#listen = RedisVent.Employees.listen('employees', '123', ({ event, data }) => {
+          console.log(event, data);
+          switch (event) {
+            case 'insert':
+          }
+        });
+        this.activateWatcher();
+      }
+    } catch (error) {
+      console.log(error);
     }
-    this.activateWatcher();
   }
 
   getEmployees(datas) {
-    this.Parent.callFunc(GetEmployees, datas).then((data) => {
-      this.#dbemployees.remove({});
-      data.forEach((item) => {
-        this.#dbemployees.insert(item);
-      });
+    let lastbasis = this.#lastbasis;
+    this.Parent.callFunc(GetEmployees, { datas, lastbasis }).then((data) => {
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
+          this.#dbemployees.insert(item);
+        });
+        this.#lastbasis = data.lastbasis;
+      }
       this.activateWatcher();
     });
+  }
+
+  clearDB() {
+    this.#dbemployees.remove({});
+    this.#lastbasis = null;
   }
 }
 

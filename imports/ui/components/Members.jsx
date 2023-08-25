@@ -18,7 +18,8 @@ class Members extends Component {
   }
 
   componentDidMount() {
-    Employees.getEmployees();
+    Employees.listen();
+    Employees.getEmployees(this.state.memberFilter);
   }
 
   handleCloseModal = () => {
@@ -64,8 +65,6 @@ class Members extends Component {
     };
 
     Employees.addMember(newMember);
-    Employees.getEmployees();
-
     this.setState({
       name: '',
       position: '',
@@ -79,6 +78,11 @@ class Members extends Component {
   };
 
   handleFilterMember = () => {
+    Employees.clearDB();
+    Employees.getEmployees(this.state.memberFilter);
+  };
+
+  handleLoadEmployees = () => {
     Employees.getEmployees(this.state.memberFilter);
   };
 
@@ -309,6 +313,13 @@ class Members extends Component {
                           </div>
                         </div>
                       ))}
+                      <div
+                        className='ry_icon-btn-style1 w-inline-block'
+                        style={{ cursor: 'pointer' }}
+                        onClick={this.handleLoadEmployees}
+                      >
+                        Load More
+                      </div>
                     </div>
                   </div>
                 </div>
