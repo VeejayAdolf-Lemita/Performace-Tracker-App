@@ -20,14 +20,20 @@ class Bonuses extends Component {
   }
 
   componentDidMount() {
-    Bonus.getBonuses();
+    Bonus.listen();
+    Bonus.getBonuses(this.state.bonusesFilter);
   }
+
+  handleLoadBonuses = () => {
+    Bonus.getBonuses(this.state.bonusesFilter);
+  };
 
   handleBonusChange = (event) => {
     this.setState({ bonusesFilter: event.target.value });
   };
 
   handleFilterBonus = () => {
+    Bonus.clearDB();
     Bonus.getBonuses(this.state.bonusesFilter);
   };
 
@@ -100,19 +106,20 @@ class Bonuses extends Component {
     };
 
     Bonus.addBonus(newBonus);
-    Bonus.getBonuses();
     this.setState({
       employeeName: '',
       status: 'Pending',
       message: '',
       dateReleased: '',
       earned: '',
+      setRelease: '',
     });
   };
 
   render() {
     const { bonusesFilter, openModal, setRelease, employeeName, status, earned, message } =
       this.state;
+    console.log(this.props.bonus);
     return (
       <div className='ry_main-style1'>
         <div className='ry_add-review-popup' style={{ display: openModal ? 'flex' : 'none' }}>
@@ -341,6 +348,13 @@ class Bonuses extends Component {
                           </div>
                         </div>
                       ))}
+                      <div
+                        className='ry_icon-btn-style1 w-inline-block'
+                        style={{ cursor: 'pointer' }}
+                        onClick={this.handleLoadBonuses}
+                      >
+                        Load More
+                      </div>
                       {/*End of mapping bonuses*/}
                     </div>
                   </div>
