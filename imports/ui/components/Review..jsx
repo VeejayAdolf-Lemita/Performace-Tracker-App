@@ -49,11 +49,11 @@ class Review extends Component {
   }
 
   componentDidMount() {
-    Reviews.getReviews(this.state.filterReview);
+    Reviews.listen();
+    Reviews.getReviewEntireCompany(this.state.filterReview);
     Reviews.getUserReview(`${this.props.Client.profile.username}`);
     Reviews.getUserRecieve(`${this.props.Client.profile.username}`);
     Reviews.getMostAppreciated();
-    Reviews.listen();
     Employees.getEmployees();
   }
 
@@ -61,6 +61,10 @@ class Review extends Component {
     this.setState({
       selectedOption: event.target.value,
     });
+  };
+
+  handleLoadReview = () => {
+    Reviews.getReviewEntireCompany(this.state.filterReview);
   };
 
   handleOpenModal = () => {
@@ -86,7 +90,7 @@ class Review extends Component {
     this.setState({
       inputValue: searchText,
       suggestions: this.props.employees
-        .filter((employee) => employee.name.startsWith(searchText))
+        .filter((employee) => employee.name.toLowerCase().startsWith(searchText))
         .map((employee) => employee.name),
     });
   };
@@ -128,8 +132,8 @@ class Review extends Component {
       share,
     };
 
+    Reviews.getReviewEntireCompany(this.state.filterReview);
     Reviews.addReview(reviewData);
-    Reviews.getReviews(this.state.filterReview);
     Reviews.getUserReview(`${this.props.Client.profile.username}`);
     Reviews.getMostAppreciated();
     this.setState({
@@ -158,7 +162,6 @@ class Review extends Component {
     };
     Replies.addReply(replyData);
     Replies.getReplies(reviewId);
-    this.forceUpdate();
 
     this.setState({
       replyMessage: '',
@@ -176,9 +179,14 @@ class Review extends Component {
     this.setState({ filterReview: event.target.value });
   };
 
-  handleSubmitFilter = (event) => {
-    event.preventDefault();
-    Reviews.getReviews(this.state.filterReview);
+  handleSubmitFilter = () => {
+    const { filterReview } = this.state;
+    try {
+      Reviews.clearDB();
+      Reviews.getReviewEntireCompany(filterReview);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   render() {
@@ -516,6 +524,13 @@ class Review extends Component {
                         </div>
                       </div>
                     ))}
+                    <div
+                      className='ry_icon-btn-style1 w-inline-block'
+                      style={{ cursor: 'pointer' }}
+                      onClick={this.handleLoadReview}
+                    >
+                      Load More
+                    </div>
                   </div>
                   <div className='ry_bodycontainer_right'>
                     <div className='card_dashboard _w-100'>

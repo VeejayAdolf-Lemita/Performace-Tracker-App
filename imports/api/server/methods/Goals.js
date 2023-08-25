@@ -8,14 +8,12 @@ if (Meteor.isServer) {
   Meteor.methods({
     [GetGoals]: async function (data) {
       const today = new Date();
+
       const weekAgo = new Date(today);
       weekAgo.setDate(today.getDate() - 7);
 
       const monthAgo = new Date(today);
       monthAgo.setMonth(today.getMonth() - 1);
-
-      const yearAgo = new Date(today);
-      yearAgo.setFullYear(today.getFullYear() - 1);
 
       const monthNames = [
         'January',
@@ -38,12 +36,6 @@ if (Meteor.isServer) {
       const formatted_weekAgo = `${monthNames[weekAgo.getMonth()]} ${addLeadingZero(
         weekAgo.getDate(),
       )}, ${weekAgo.getFullYear()}`;
-      const formatted_monthAgo = `${monthNames[monthAgo.getMonth()]} ${addLeadingZero(
-        monthAgo.getDate(),
-      )}, ${monthAgo.getFullYear()}`;
-      const formatted_yearAgo = `${monthNames[yearAgo.getMonth()]} ${addLeadingZero(
-        yearAgo.getDate(),
-      )}, ${yearAgo.getFullYear()}`;
 
       function addLeadingZero(number) {
         return number < 10 ? '0' + number : number;

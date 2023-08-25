@@ -12,11 +12,34 @@ import RedisVent from '../RedisVent';
 
 if (Meteor.isServer) {
   Meteor.methods({
-    [GetReviews]: function (data) {
-      return ReviewCollection.find({ share: data })
-        .fetch()
-        .map((data) => data)
-        .sort((a, b) => b.timestamp - a.timestamp); // Assuming you have a 'timestamp' property in your review objects
+    [GetReviews]: function ({ datas, lastbasis }) {
+      const pipeline = [];
+      const match = { index1: { $regex: datas } };
+      const project = {
+        _id: 1,
+        reviewFrom: 1,
+        reviewTo: 1,
+        message: 1,
+        index1: 1,
+        reacts: 1,
+        timestamp: 1,
+        createdAt: 1,
+      };
+      if (lastbasis) match.index1.$lt = lastbasis;
+      pipeline.push({ $match: match });
+      pipeline.push({ $project: project });
+      pipeline.push({ $limit: 4 });
+      return ReviewCollection.rawCollection()
+        .aggregate(pipeline, { allowDiskUse: true })
+        .toArray()
+        .then((res) => {
+          const retval = {};
+          if (res && res.length) {
+            retval.data = res.map((d) => ({ ...d, _id: d._id }));
+            retval.lastbasis = res[res.length - 1].index1;
+          }
+          return retval;
+        });
     },
 
     [GetUserReview]: function (data) {
@@ -74,12 +97,12 @@ if (Meteor.isServer) {
       try {
         check(data, Object);
         data.timestamp = moment().valueOf();
+        data.index1 = `${data.share}${data.timestamp}`;
         const id = ReviewCollection.insert(data);
-        data._id = id._str;
         console.info(
           'Reviews.js call[%s]: %s at %s',
           AddReview,
-          `New Review Added! ID: ${data._id}`,
+          `New Review Added! ID: ${id._str}`,
           moment(data.timestamp),
         );
         RedisVent.Reviews.triggerInsert('reviews', '123', data);

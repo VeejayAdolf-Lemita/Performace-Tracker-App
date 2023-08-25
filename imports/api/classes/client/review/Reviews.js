@@ -3,6 +3,7 @@ import Client from '../Client';
 import RedisVent from '../RedisVent';
 import {
   GetReviews,
+  GetReviewsSubject,
   AddReview,
   GetUserReview,
   GetUserRecieve,
@@ -12,6 +13,7 @@ import {
 class Reviews extends Watcher {
   #reviews = null;
   #dbreviews = null;
+  #lastbasis = null;
   #usergiven = null;
   #userrecieve = null;
   #mostappreciated = null;
@@ -23,11 +25,14 @@ class Reviews extends Watcher {
   }
 
   get Data() {
-    return this.#dbreviews.find({}).fetch();
+    return this.Reviews.find({}, { sort: { timestamp: -1 } }).fetch();
   }
-
+  /**
+   *
+   * @returns {import ("meteor/mongo").Mongo.Collection}
+   */
   get Reviews() {
-    return this.#reviews;
+    return this.#dbreviews;
   }
 
   addReview(data) {
@@ -35,15 +40,19 @@ class Reviews extends Watcher {
   }
 
   listen() {
-    if (this.listen) {
-      this.#listen = RedisVent.Reviews.listen('reviews', '123', ({ event, data }) => {
-        console.log(event, data);
-        switch (event) {
-          case 'insert':
-        }
-      });
+    try {
+      if (!this.#listen) {
+        this.#listen = RedisVent.Reviews.listen('reviews', '123', ({ event, data }) => {
+          console.log(event, data);
+          switch (event) {
+            case 'insert':
+          }
+        });
+      }
+      this.activateWatcher();
+    } catch (error) {
+      console.log(error);
     }
-    this.activateWatcher();
   }
 
   get UserReviews() {
@@ -79,16 +88,25 @@ class Reviews extends Watcher {
     });
   }
 
-  getReviews(data) {
-    this.Parent.callFunc(GetReviews, data).then((datas) => {
-      this.#dbreviews.remove({});
-      if (data) {
-        datas.forEach((item) => {
+  getReviewEntireCompany(datas, isClear = false) {
+    console.log(datas);
+    let lastbasis = this.#lastbasis;
+    this.Parent.callFunc(GetReviews, { datas, lastbasis }).then((data) => {
+      if (isClear) this.#dbreviews.remove();
+      if (data && data.data && data.data.length) {
+        data.data.forEach((item) => {
+          item._id = new Meteor.Collection.ObjectID(data.data._id);
           this.#dbreviews.insert(item);
         });
-        this.activateWatcher();
+        this.#lastbasis = data.lastbasis;
       }
+      this.activateWatcher();
     });
+  }
+
+  clearDB() {
+    this.#dbreviews.remove({});
+    this.#lastbasis = null;
   }
 }
 
