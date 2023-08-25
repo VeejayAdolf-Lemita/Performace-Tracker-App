@@ -57,7 +57,7 @@ class Goals extends Watcher {
   }
 
   get GoalsData() {
-    return this.GoalsWIndex.find({}, { sort: { timestamp: 1 } }).fetch();
+    return this.GoalsWIndex.find({}, { sort: { timestamp: -1 } }).fetch();
   }
   /**
    *

@@ -108,7 +108,6 @@ class Goals extends Component {
       achieved,
     };
     Goalss.addGoal(newGoal);
-    Goalss.getGoalsWIndex(this.state.goalFilter);
     this.setState({
       goalEnd: '',
       goalName: '',
