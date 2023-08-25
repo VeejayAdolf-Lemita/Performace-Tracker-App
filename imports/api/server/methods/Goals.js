@@ -55,7 +55,7 @@ if (Meteor.isServer) {
           },
         },
       };
-      if (lastbasis) match.index1.$gt = lastbasis;
+      if (lastbasis) match.index1.$lt = lastbasis;
       pipeline.push({ $match: match });
       pipeline.push({ $project: project });
       pipeline.push({ $limit: 4 });

@@ -48,8 +48,8 @@ class Goals extends Component {
   }
 
   componentDidMount() {
-    Goalss.getGoalsWIndex(this.state.goalFilter);
     Goalss.listen();
+    Goalss.getGoalsWIndex(this.state.goalFilter);
   }
 
   handleGoalFilter = (event) => {
