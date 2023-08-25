@@ -38,10 +38,9 @@ if (Meteor.isServer) {
           return retval;
         });
     },
-    [GetFilteredAttendance]: function (data, lastbasis) {
-      console.log(data);
+    [GetFilteredAttendance]: function ({ datas, lastbasis }) {
       const pipeline = [];
-      const match = { index1: { $regex: 'Company' }, date: new Date(data) };
+      const match = { index1: { $regex: 'Company' }, date: new Date(datas) };
       const project = {
         _id: 1,
         index1: 1,

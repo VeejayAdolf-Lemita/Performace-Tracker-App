@@ -37,8 +37,8 @@ class Attendace extends Watcher {
 
   getFilteredAttendance(datas) {
     console.log(datas);
-    this.Parent.callFunc(GetFilteredAttendance, datas).then((data) => {
-      this.#dbattendance.remove({});
+    let lastbasis = this.#lastbasis;
+    this.Parent.callFunc(GetFilteredAttendance, { datas, lastbasis }).then((data) => {
       if (data && data.data && data.data.length) {
         data.data.forEach((item) => {
           item._id = new Meteor.Collection.ObjectID(data.data._id);
@@ -48,6 +48,11 @@ class Attendace extends Watcher {
       }
       this.activateWatcher();
     });
+  }
+
+  clearDB() {
+    this.#dbattendance.remove({});
+    this.#lastbasis = null;
   }
 }
 

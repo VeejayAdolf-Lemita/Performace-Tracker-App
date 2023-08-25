@@ -14,13 +14,14 @@ class Attendance extends Component {
   }
 
   componentDidMount() {
-    Attendances.getAttendance();
+    Attendances.getAttendance(this.state.rawDateFilter);
   }
 
   getAttendance = () => {
     if (this.state.rawDateFilter === '') {
-      Attendances.getAttendance();
+      Attendances.getAttendance(this.state.rawDateFilter);
     } else {
+      Attendances.clearDB();
       Attendances.getFilteredAttendance(this.state.rawDateFilter);
     }
   };
@@ -34,12 +35,14 @@ class Attendance extends Component {
   };
 
   handleAttendanceFilter = () => {
+    Attendances.clearDB();
     Attendances.getFilteredAttendance(this.state.rawDateFilter);
   };
 
   handleClearState = () => {
     this.setState({ rawDateFilter: '', rawDateFilter2: '' });
-    // window.location.reload();
+    Attendances.clearDB();
+    Attendances.getFilteredAttendance(this.state.rawDateFilter);
   };
 
   handleExport = () => {
