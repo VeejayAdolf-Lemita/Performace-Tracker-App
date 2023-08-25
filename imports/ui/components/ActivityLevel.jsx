@@ -37,7 +37,12 @@ class ActivityLevel extends Component {
     // For demonstration purposes, we'll use CSV format
     let csvContent = 'Name,Project,Mon,Tue,Wed,Thu,Fri,Average,\n';
     activityLvlData.forEach((data) => {
-      const row = `${data.Name},${data.Department},${data.Mon},${data.Tue},${data.Wed},${data.Thu},${data.Fri},${data.AverageActivity},\n`;
+      const row = `${data.Name || 'N/A'},${data.Department || 'N/A'},${data.Mon || 'N/A'},${
+        data.Tue || 'N/A'
+      },${data.Wed || 'N/A'},${data.Thu || 'N/A'},${data.Fri || 'N/A'},${
+        data.AverageActivity || 'N/A'
+      },\n`;
+
       csvContent += row;
     });
 

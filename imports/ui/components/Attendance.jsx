@@ -50,7 +50,16 @@ class Attendance extends Component {
 
     let csvContent = 'Name,Date,Status,Start Time,Stop Time,Duration,Activity,\n';
     attendanceData.forEach((data) => {
-      const row = `${data.name},${data.date},${data.status},${data.timeIn},${data.timeOut},${data.duration},${data.activity}\n`;
+      const row = `${data.employeeName},${moment(data.date).format('ddd, MMM D')},${
+        data.status
+      },${moment.unix(data.timeIn).format('HH:mm')},${moment
+        .unix(data.timeOut)
+        .format('HH:mm')},${(() => {
+        const durationInSeconds = moment.duration(data.duration, 'seconds').asSeconds();
+        const hours = Math.floor(durationInSeconds / 3600);
+        const minutes = Math.floor((durationInSeconds % 3600) / 60);
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      })()},${data.activity}\n`;
       csvContent += row;
     });
 
@@ -200,11 +209,13 @@ class Attendance extends Component {
                       />
                       <div>Filter</div>
                     </div>
-                    <div className='ry_icon-btn-style1 outline mr-10 w-inline-block'>
+                    <div
+                      className='ry_icon-btn-style1 outline mr-10 w-inline-block'
+                      onClick={this.handleExport}
+                    >
                       <img
                         src='https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648082396af282519c4e2818_report_01.svg'
                         className='icon-btn_asset'
-                        onClick={this.handleExport}
                       />
                       <div>Export</div>
                     </div>

@@ -61,7 +61,12 @@ class Timesheet extends Component {
 
     let csvContent = 'Name,Team,Date,Office Time,Productivity,Earnings\n';
     timesheetData.forEach((data) => {
-      const row = `${data.Name},${data.Team},${data.Date},"${data.OfficeTime}",${data.Productivity}%,${data.Earnings} $\n`;
+      const row = `${data.employeeName},${data.department},${data.date},"${calculateTimeDifference(
+        '00:00:00',
+        `${Math.floor(data.officeTime / 3600)}:${Math.floor((data.officeTime % 3600) / 60)}:${
+          data.officeTime % 60
+        }`,
+      )}",${data.productivity}%,${data.salary} $\n`;
       csvContent += row;
     });
 
@@ -92,9 +97,9 @@ class Timesheet extends Component {
     const averageMinutes = Math.floor((averageSeconds % 3600) / 60);
     const averageSecondsRemainder = Math.floor(averageSeconds % 60);
 
-    return `${averageHours}:${String(averageMinutes).padStart(2, '0')}:${String(
+    return `${averageHours}h ${String(averageMinutes).padStart(2, '0')}m ${String(
       averageSecondsRemainder,
-    ).padStart(2, '0')}`;
+    ).padStart(2, '0')}s`;
   };
 
   calculateTotalActiveTimeDifference = (timesheetData) => {
@@ -112,9 +117,9 @@ class Timesheet extends Component {
     const averageMinutes = Math.floor((averageActiveSeconds % 3600) / 60);
     const averageSecondsRemainder = Math.floor(averageActiveSeconds % 60);
 
-    return `${averageHours}:${String(averageMinutes).padStart(2, '0')}:${String(
+    return `${averageHours}h ${String(averageMinutes).padStart(2, '0')}m ${String(
       averageSecondsRemainder,
-    ).padStart(2, '0')}`;
+    ).padStart(2, '0')}s`;
   };
 
   calculateAverageProductivity = (timesheetData) => {
@@ -129,6 +134,7 @@ class Timesheet extends Component {
   };
 
   render() {
+    console.log(this.props.timesheet);
     const { rawDateFilter } = this.state;
     const averageOfficeTime = this.calculateTotalTimeDifference(this.props.timesheet);
     const averageActiveTime = this.calculateTotalActiveTimeDifference(this.props.timesheet);
