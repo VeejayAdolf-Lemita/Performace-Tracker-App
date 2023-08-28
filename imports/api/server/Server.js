@@ -19,7 +19,7 @@ class Server {
     });
   }
 
-  run() {
+  async run() {
     return Promise.all([this.startRedis()]).then(() => {
       console.log('Server is ready..');
     });
